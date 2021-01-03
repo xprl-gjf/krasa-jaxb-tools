@@ -1,8 +1,8 @@
 <xsd:schema
-        xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-        targetNamespace="a"
-        xmlns:a="a"
-        elementFormDefault="qualified">
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    targetNamespace="a"
+    xmlns:a="a"
+    elementFormDefault="qualified">
 
     <xsd:element name="naturalPerson">
         <xsd:complexType>

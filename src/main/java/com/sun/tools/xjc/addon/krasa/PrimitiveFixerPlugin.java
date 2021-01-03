@@ -5,16 +5,23 @@ import com.sun.tools.xjc.Options;
 import com.sun.tools.xjc.Plugin;
 import com.sun.tools.xjc.outline.ClassOutline;
 import com.sun.tools.xjc.outline.Outline;
+import java.io.StringWriter;
+import java.util.Map;
 import org.xml.sax.ErrorHandler;
 import org.xml.sax.SAXException;
-
-import java.io.StringWriter;
-import java.util.HashMap;
-import java.util.Map;
 
 public class PrimitiveFixerPlugin extends Plugin {
 
     private static final String OPTION_NAME = "XReplacePrimitives";
+    private static final Map<String, Class<?>> PRIMITIVE_MAPPINGS = Map.of(
+            "int", Integer.class,
+            "long", Long.class,
+            "boolean", Boolean.class,
+            "double", Double.class,
+            "float", Float.class,
+            "byte", Byte.class,
+            "short", Short.class
+    );
 
     @Override
     public String getOptionName() {
@@ -23,43 +30,43 @@ public class PrimitiveFixerPlugin extends Plugin {
 
     @Override
     public String getUsage() {
-        return "-" + OPTION_NAME
-                + "    :   Replaces primitive types of fields and methods by proper Class, WARNING: must be defined before XhashCode or Xequals.  \n";
+        return "-" + OPTION_NAME + "    :   " +
+                "Replaces primitive types of fields and methods by proper " +
+                "Class, WARNING: must be defined before XhashCode or Xequals.\n";
     }
 
     @Override
-    public boolean run(Outline outline, Options opt, ErrorHandler errorHandler) throws SAXException {
+    public boolean run(Outline outline, Options opt, ErrorHandler errorHandler)
+            throws SAXException {
+
         for (ClassOutline co : outline.getClasses()) {
-            HashMap<String, Class> hashMap = new HashMap<String, Class>();
-            hashMap.put("int", Integer.class);
-            hashMap.put("long", Long.class);
-            hashMap.put("boolean", Boolean.class);
-            hashMap.put("double", Double.class);
-            hashMap.put("float", Float.class);
-            hashMap.put("byte", Byte.class);
-            hashMap.put("short", Short.class);
+
             Map<String, JFieldVar> fields = co.implClass.fields();
 
-            for (Map.Entry<String, JFieldVar> stringJFieldVarEntry : fields.entrySet()) {
+            for (Map.Entry<String, JFieldVar> stringJFieldVarEntry : 
+                    fields.entrySet()) {
+                
                 JFieldVar fieldVar = stringJFieldVarEntry.getValue();
                 JType type = fieldVar.type();
-                
-                /*
-                 * Exclude "serialVersionUID" from processing XReplacePrimitives as this will 
-                 * have no getter or setter defined.
-                 */
+
+                // Exclude "serialVersionUID" from processing XReplacePrimitives 
+                // as this will have no getter or setter defined.
                 if ("serialVersionUID".equals(fieldVar.name())) {
-                	continue;
+                    continue;
                 }
-                    
+
                 if (type.isPrimitive()) {
-                    Class o = hashMap.get(type.name());
+                    Class<?> o = PRIMITIVE_MAPPINGS.get(type.name());
                     if (o != null) {
                         JCodeModel jCodeModel = new JCodeModel();
                         JClass newType = jCodeModel.ref(o);
                         fieldVar.type(newType);
-                        setReturnType(newType, getMethodsMap(MethodType.GETTER, fieldVar, co));
-                        setParameter(newType, getMethodsMap(MethodType.SETTER, fieldVar, co));
+                        setReturnType(newType, 
+                                getMethodsMap(MethodType.GETTER,
+                                fieldVar, co));
+                        setParameter(newType, 
+                                getMethodsMap(MethodType.SETTER,
+                                fieldVar, co));
                     }
                 }
             }
@@ -87,19 +94,23 @@ public class PrimitiveFixerPlugin extends Plugin {
     /**
      * I hate this shit
      */
-    private JMethod getMethodsMap(MethodType type, JFieldVar field, ClassOutline co) {
+    private JMethod getMethodsMap(MethodType type, JFieldVar field,
+            ClassOutline co) {
         String getterBody = "return " + field.name() + ";";
         for (JMethod method : co.implClass.methods()) {
             String name = method.name();
             if (method.type().isPrimitive()) {
-                if (MethodType.GETTER == type && (name.startsWith("is") || name.startsWith("get"))) {
-                    JStatement o = (JStatement) method.body().getContents().get(0);
+                if (MethodType.GETTER == type && (name.startsWith("is") || name.
+                        startsWith("get"))) {
+                    JStatement o = (JStatement) method.body().getContents().get(
+                            0);
                     String s = getterBody(o);
                     if (s.trim().equals(getterBody)) {
                         return method;
                     }
                 } else if (MethodType.SETTER == type && name.startsWith("set")) {
-                    JStatement o = (JStatement) method.body().getContents().get(0);
+                    JStatement o = (JStatement) method.body().getContents().get(
+                            0);
                     String s = setterBody(o);
                     if (s.startsWith("this." + field.name() + " =")) {
                         return method;
@@ -108,7 +119,8 @@ public class PrimitiveFixerPlugin extends Plugin {
             }
 
         }
-        throw new RuntimeException("Failed to find " + type + " for " + field.name() + ", disable XReplacePrimitives and report a bug");
+        throw new RuntimeException("Failed to find " + type + " for " + field.
+                name() + ", disable XReplacePrimitives and report a bug");
     }
 
     public static String getterBody(JStatement jStatement) {

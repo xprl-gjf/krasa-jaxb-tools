@@ -7,20 +7,16 @@ import org.apache.maven.project.MavenProject;
 import org.jvnet.jaxb2.maven2.AbstractXJC2Mojo;
 import org.jvnet.jaxb2.maven2.test.RunXJC2Mojo;
 
-/**
- * Created on 15.02.16.
- */
-public class RunEnumerationTest extends RunXJC2Mojo{
-    public static final String STRING = "enumeration";
+public class ABaseTest extends RunXJC2Mojo {
 
     @Override
     protected File getGeneratedDirectory() {
-        return new File(getBaseDir(), "target/generated-sources/" + STRING);
+        return new File(getBaseDir(), "target/generated-sources/abase");
     }
 
     @Override
     public File getSchemaDirectory() {
-        return new File(getBaseDir(), "src/test/resources/" + STRING);
+        return new File(getBaseDir(), "src/test/resources/abase");
     }
 
     @Override
@@ -29,14 +25,14 @@ public class RunEnumerationTest extends RunXJC2Mojo{
         mojo.setProject(new MavenProject());
         mojo.setForceRegenerate(true);
         mojo.setExtension(true);
-
     }
 
     @Override
     public List<String> getArgs() {
-        final List<String> args = new ArrayList<String>(super.getArgs());
+        final List<String> args = new ArrayList<>(super.getArgs());
         args.add("-XJsr303Annotations");
-        args.add("-XJsr303Annotations:notNullAnnotationsCustomMessages=ClassName");
+        args.add("-XJsr303Annotations:targetNamespace=");
+        // args.add("-XJsr303Annotations:targetNamespace=a");
         // args.add("-XJsr303Annotations:JSR_349=true");
         return args;
     }

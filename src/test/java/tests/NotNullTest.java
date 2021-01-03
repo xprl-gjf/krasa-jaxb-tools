@@ -7,13 +7,10 @@ import org.apache.maven.project.MavenProject;
 import org.jvnet.jaxb2.maven2.AbstractXJC2Mojo;
 import org.jvnet.jaxb2.maven2.test.RunXJC2Mojo;
 
-/**
- * Created on 15.02.16.
- */
-public class RunEnumerationTest extends RunXJC2Mojo{
-    public static final String STRING = "enumeration";
+public class NotNullTest extends RunXJC2Mojo {
 
-    @Override
+    public static final String STRING = "notNull";
+
     protected File getGeneratedDirectory() {
         return new File(getBaseDir(), "target/generated-sources/" + STRING);
     }
@@ -29,7 +26,6 @@ public class RunEnumerationTest extends RunXJC2Mojo{
         mojo.setProject(new MavenProject());
         mojo.setForceRegenerate(true);
         mojo.setExtension(true);
-
     }
 
     @Override
