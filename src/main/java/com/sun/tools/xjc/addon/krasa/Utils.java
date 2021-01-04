@@ -70,24 +70,13 @@ class Utils {
         return null;
     }
 
+    @Deprecated
     public static Integer parseInt(String value) {
         try {
-
-            Integer i = Integer.parseInt(value);
-            if (i < 2147483647 && i > -2147483648) {
-                return i;
-            }
-        } catch (Exception e) {
-            try {
-                return (int) Math.round(Double.parseDouble(value));
-
-            } catch (Exception ex) {
-                ;
-            }
-
+            return Integer.parseInt(value);
+        } catch (NumberFormatException e) {
+            return null;
         }
-        return null;
-
     }
 
     public static boolean equals(String value, long val) {

@@ -80,6 +80,15 @@ public class JaxbValidationsPlugins extends Plugin {
         argParser.extractBoolean(GENERATE_NOT_NULL_ANNOTATIONS)
                 .ifPresent(v -> notNullAnnotations = v);
 
+        argParser.extractBoolean(VERBOSE)
+                .ifPresent(v -> verbose = v);
+
+        argParser.extractBoolean(GENERATE_JPA_ANNOTATIONS)
+                .ifPresent(v -> jpaAnnotations = v);
+
+        argParser.extractString(GENERATE_SERVICE_VALIDATION_ANNOTATIONS)
+                .ifPresent(v -> serviceValidationAnnotations = v);
+
         argParser.extractString(NOT_NULL_ANNOTATIONS_CUSTOM_MESSAGES)
                 .ifPresent(value -> {
                     notNullCustomMessages = Boolean.parseBoolean(value);
@@ -98,15 +107,6 @@ public class JaxbValidationsPlugins extends Plugin {
                         }
                     }
                 });
-
-        argParser.extractBoolean(VERBOSE)
-                .ifPresent(v -> verbose = v);
-
-        argParser.extractBoolean(GENERATE_JPA_ANNOTATIONS)
-                .ifPresent(v -> jpaAnnotations = v);
-
-        argParser.extractString(GENERATE_SERVICE_VALIDATION_ANNOTATIONS)
-                .ifPresent(value -> serviceValidationAnnotations = value);
 
         return argParser.getCounter();
     }
@@ -141,16 +141,17 @@ public class JaxbValidationsPlugins extends Plugin {
 //        try {
         for (ClassOutline co : model.getClasses()) {
             List<CPropertyInfo> properties = co.target.getProperties();
+            
             for (CPropertyInfo property : properties) {
                 if (property instanceof CElementPropertyInfo) {
-                    processElement((CElementPropertyInfo) property,
-                            co, model);
+                    processElement((CElementPropertyInfo) property, co, model);
+                    
                 } else if (property instanceof CAttributePropertyInfo) {
-                    processAttribute((CAttributePropertyInfo) property,
-                            co, model);
+                    processAttribute((CAttributePropertyInfo) property, co, model);
+                    
                 } else if (property instanceof CValuePropertyInfo) {
-                    processAttribute((CValuePropertyInfo) property,
-                            co, model);
+                    processAttribute((CValuePropertyInfo) property, co, model);
+                    
                 }
             }
         }
@@ -180,38 +181,25 @@ public class JaxbValidationsPlugins extends Plugin {
         JFieldVar field = classOutline.implClass.fields()
                 .get(propertyName(property));
 
-        if ((minOccurs > 0 || required || !nillable) &&
+        if (notNullAnnotations &&
+                (minOccurs > 0 || required || !nillable) &&
                 !hasAnnotation(field, NotNull.class)) {
-            addNotNullValidation(classOutline, field);
+            addNotNullAnnotation(classOutline, field);
         }
 
-        if (!hasAnnotation(field, Size.class)) {
-            if (maxOccurs != 0 || minOccurs != 0) {
-                log("@Size (" + minOccurs + "," + maxOccurs + ") " +
-                        propertyName(property) +
-                        " added to class " + classOutline.implClass.name());
-
-                final JAnnotationUse annotation = field.annotate(Size.class);
-
-                if (minOccurs != -1) {
-                    annotation.param("min", minOccurs);
-                }
-                if (maxOccurs != -1) {
-                    annotation.param("max", maxOccurs);
-                }
-            }
+        if (!hasAnnotation(field, Size.class) && 
+                (maxOccurs != 0 || minOccurs != 0) ) {
+            addSizeAnnotation(minOccurs, maxOccurs, property, classOutline, field);
         }
 
         XSTerm term = particle.getTerm();
         if (term instanceof ElementDecl) {
-            processElement(property, classOutline, field,
-                    (ElementDecl) term);
+            processElement(property, classOutline, field, (ElementDecl) term);
 
         } else if (term instanceof DelayedRef.Element) {
 
             XSElementDecl xsElementDecl = ((DelayedRef.Element) term).get();
-            processElement(property, classOutline, field,
-                    (ElementDecl) xsElementDecl);
+            processElement(property, classOutline, field, (ElementDecl) xsElementDecl);
         }
 
     }
@@ -222,23 +210,84 @@ public class JaxbValidationsPlugins extends Plugin {
         String className = clase.implClass.name();
         XSType elementType = element.getType();
 
-        validAnnotation(elementType, var, propertyName, className);
+        addValidAnnotation(elementType, var, propertyName, className);
 
         if (elementType instanceof XSSimpleType) {
-            processType((XSSimpleType) elementType,
-                    var, propertyName, className);
+            processType((XSSimpleType) elementType, var, propertyName, className);
 
         } else if (elementType.getBaseType() instanceof XSSimpleType) {
-            processType((XSSimpleType) elementType.getBaseType(),
-                    var, propertyName, className);
+            final XSSimpleType baseType = (XSSimpleType) elementType.getBaseType();
+            processType(baseType, var, propertyName, className);
         }
     }
 
-    private void addNotNullValidation(ClassOutline co, JFieldVar field) {
-        if (!notNullAnnotations) {
-            return;
+    public void processType(XSSimpleType simpleType, JFieldVar field,
+            String propertyName, String className) {
+
+        if (!hasAnnotation(field, Size.class) &&
+                isSizeAnnotationApplicable(field)) {
+            addSizeAnnotation(simpleType, propertyName, className, field);
         }
 
+        if (jpaAnnotations && isSizeAnnotationApplicable(field)) {
+            addJpaColumnAnnotation(simpleType, propertyName, className, field);
+        }
+
+        XSFacet maxInclusive = simpleType.getFacet("maxInclusive");
+        if (maxInclusive != null &&
+                Utils.isNumber(field) &&
+                isValidValue(maxInclusive) &&
+                !hasAnnotation(field, DecimalMax.class)) {
+            addDecimalMaxAnnotation(maxInclusive, propertyName, className, field);
+        }
+
+        XSFacet minInclusive = simpleType.getFacet("minInclusive");
+        if (minInclusive != null && Utils.isNumber(field) && isValidValue(
+                minInclusive) &&
+                !hasAnnotation(field, DecimalMin.class)) {
+            addDecimalMinAnnotation(minInclusive, propertyName, className, field);
+        }
+
+        XSFacet maxExclusive = simpleType.getFacet("maxExclusive");
+        if (maxExclusive != null &&
+                Utils.isNumber(field) &&
+                isValidValue(maxExclusive) &&
+                !hasAnnotation(field, DecimalMax.class)) {
+            addDecimalMaxAnnotation(field, maxExclusive, propertyName, className);
+        }
+
+        XSFacet minExclusive = simpleType.getFacet("minExclusive");
+        if (minExclusive != null && Utils.isNumber(field) && isValidValue(
+                minExclusive) &&
+                !hasAnnotation(field, DecimalMin.class)) {
+            addDecimalMinAnnotation(field, minExclusive, propertyName, className);
+        }
+
+        if (simpleType.getFacet("totalDigits") != null && Utils.isNumber(field)) {
+            addDigitAndJpaColumnAnnotation(simpleType, field, propertyName, className);
+        }
+
+        /**
+         * <annox:annotate annox:class="javax.validation.constraints.Pattern"
+         * message="Name can only contain capital letters, numbers and the symbols '-', '_', '/', ' '"
+         * regexp="^[A-Z0-9_\s//-]*" />
+         */
+        List<XSFacet> patternList = simpleType.getFacets("pattern");
+        if (patternList.size() > 1) { // More than one pattern
+            if ("String".equals(field.type().name())) {
+                addPatternAnnotation(simpleType, propertyName, className, field, patternList);
+            }
+        } else if (simpleType.getFacet("pattern") != null) {
+            String pattern = simpleType.getFacet("pattern").getValue().value;
+            if ("String".equals(field.type().name())) {
+                addPatternAnnotation(simpleType, propertyName, className, field, pattern);
+            }
+        } else if ("String".equals(field.type().name())) {
+            addPatternAnnotation(simpleType, propertyName, className, field);
+        }
+    }
+
+    private void addNotNullAnnotation(ClassOutline co, JFieldVar field) {
         final String className = co.implClass.name();
         log("@NotNull: " + field.name() + " added to class " + className);
 
@@ -267,247 +316,139 @@ public class JaxbValidationsPlugins extends Plugin {
         }
     }
 
-    private void validAnnotation(final XSType elementType, JFieldVar var,
-            final String propertyName,
-            final String className) {
-        if ((targetNamespace == null || elementType.getTargetNamespace().
-                startsWith(targetNamespace)) &&
-                (elementType.isComplexType() || Utils.isCustomType(var))) {
-            if (!hasAnnotation(var, Valid.class)) {
-                log("@Valid: " + propertyName + " added to class " + className);
-                var.annotate(Valid.class);
+    private void addValidAnnotation(XSType elementType, JFieldVar var, String propertyName, 
+            String className) {
+
+        String elemNs = elementType.getTargetNamespace();
+
+        if ((targetNamespace == null || elemNs.startsWith(targetNamespace)) &&
+                (elementType.isComplexType() || Utils.isCustomType(var)) &&
+                !hasAnnotation(var, Valid.class)) {
+
+            log("@Valid: " + propertyName + " added to class " + className);
+            var.annotate(Valid.class);
+        }
+    }
+
+    private void addSizeAnnotation(int minOccurs, int maxOccurs, CElementPropertyInfo property,
+            ClassOutline classOutline, JFieldVar field) {
+        log("@Size (" + minOccurs + "," + maxOccurs + ") " +
+                propertyName(property) +
+                " added to class " + classOutline.implClass.name());
+        
+        final JAnnotationUse annotation = field.annotate(Size.class);
+        
+        if (minOccurs != -1) {
+            annotation.param("min", minOccurs);
+        }
+        if (maxOccurs != -1) {
+            annotation.param("max", maxOccurs);
+        }
+    }
+
+    private void addPatternAnnotation(XSSimpleType simpleType, String propertyName, String className,
+            JFieldVar field) {
+        final List<XSFacet> enumerationList = simpleType.getFacets(
+                "enumeration");
+        if (enumerationList.size() > 1) { // More than one pattern
+            log("@Pattern: " + propertyName + " added to class " + className);
+            final JAnnotationUse patternListAnnotation = field.annotate(
+                    Pattern.class);
+            annotateMultipleEnumerationPattern(enumerationList,
+                    patternListAnnotation);
+        } else if (simpleType.getFacet("enumeration") != null) {
+            final String pattern = simpleType.getFacet("enumeration").
+                    getValue().value;
+            // cxf-codegen fix
+            if (!"\\c+".equals(pattern)) {
+                log("@Pattern(" + pattern + "): " + propertyName +
+                        " added to class " + className);
+                field.annotate(Pattern.class).param("regexp", escapeRegex(
+                        replaceXmlProprietals(pattern)));
             }
         }
     }
 
-    public void processType(XSSimpleType simpleType, JFieldVar field,
-            String propertyName, String className) {
-        if (!hasAnnotation(field, Size.class) && 
-                isSizeAnnotationApplicable(field)) {
-            Integer maxLength =
-                    simpleType.getFacet("maxLength") == null ? null : Utils.
-                    parseInt(simpleType.getFacet(
-                            "maxLength").getValue().value);
-            Integer minLength =
-                    simpleType.getFacet("minLength") == null ? null : Utils.
-                    parseInt(simpleType.getFacet(
-                            "minLength").getValue().value);
-            Integer length = simpleType.getFacet("length") == null ? null :
-                    Utils.parseInt(simpleType.getFacet(
-                            "length").getValue().value);
-
-            if (maxLength != null && minLength != null) {
-                log("@Size(" + minLength + "," + maxLength + "): " +
-                        propertyName + " added to class " +
-                        className);
-                field.annotate(Size.class)
-                        .param("min", minLength)
-                        .param("max", maxLength);
-
-            } else if (minLength != null) {
-                log("@Size(" + minLength + ", null): " + propertyName +
-                        " added to class " + className);
-                field.annotate(Size.class).param("min", minLength);
-
-            } else if (maxLength != null) {
-                log("@Size(null, " + maxLength + "): " + propertyName +
-                        " added to class " + className);
-                field.annotate(Size.class).param("max", maxLength);
-
-            } else if (length != null) {
-                log("@Size(" + length + "," + length + "): " + propertyName +
-                        " added to class " + className);
-                field.annotate(Size.class).param("min", length).param("max",
-                        length);
+    private void annotateMultipleEnumerationPattern(
+            final List<XSFacet> patternList,
+            final JAnnotationUse patternAnnotation) {
+        StringBuilder sb = new StringBuilder();
+        for (XSFacet xsFacet : patternList) {
+            final String value = xsFacet.getValue().value;
+            // cxf-codegen fix
+            if (!"\\c+".equals(value)) {
+                sb.append("(").append(escapeRegex(replaceXmlProprietals(value))).
+                        append(")|");
             }
         }
-        if (jpaAnnotations && isSizeAnnotationApplicable(field)) {
-            Integer maxLength =
-                    simpleType.getFacet("maxLength") == null ? null : Utils.
-                    parseInt(simpleType.getFacet(
-                            "maxLength").getValue().value);
-            if (maxLength != null) {
-                log("@Column(null, " + maxLength + "): " + propertyName +
-                        " added to class " + className);
-                field.annotate(Column.class).param("length", maxLength);
-            }
-        }
-        //TODO minExclusive=0, fractionDigits=2 wrong annotation https://github.com/krasa/krasa-jaxb-tools/issues/38 
-        XSFacet maxInclusive = simpleType.getFacet("maxInclusive");
-        if (maxInclusive != null && Utils.isNumber(field) && isValidValue(
-                maxInclusive) &&
-                !hasAnnotation(field, DecimalMax.class)) {
-            log("@DecimalMax(" + maxInclusive.getValue().value + "): " +
-                    propertyName +
-                    " added to class " + className);
-            field.annotate(DecimalMax.class).param("value", maxInclusive.
-                    getValue().value);
-        }
-        XSFacet minInclusive = simpleType.getFacet("minInclusive");
-        if (minInclusive != null && Utils.isNumber(field) && isValidValue(
-                minInclusive) &&
-                !hasAnnotation(field, DecimalMin.class)) {
-            log("@DecimalMin(" + minInclusive.getValue().value + "): " +
-                    propertyName +
-                    " added to class " + className);
-            field.annotate(DecimalMin.class).param("value", minInclusive.
-                    getValue().value);
-        }
+        patternAnnotation.param("regexp", sb.substring(0, sb.length() - 1));
+    }
 
-        XSFacet maxExclusive = simpleType.getFacet("maxExclusive");
-        if (maxExclusive != null && Utils.isNumber(field) && isValidValue(
-                maxExclusive) &&
-                !hasAnnotation(field, DecimalMax.class)) {
-            JAnnotationUse annotate = field.annotate(DecimalMax.class);
-            if (jsr349) {
-                log("@DecimalMax(value = " + maxExclusive.getValue().value +
-                        ", inclusive = false): " + propertyName +
+    private void addPatternAnnotation(XSSimpleType simpleType, String propertyName, String className,
+            JFieldVar field, String pattern) {
+        if (simpleType.getBaseType() instanceof XSSimpleType &&
+                ((XSSimpleType) simpleType.getBaseType())
+                        .getFacet("pattern") != null) {
+            log("@Pattern.List: " + propertyName + " added to class " +
+                    className);
+            JAnnotationUse patternListAnnotation = field.annotate(
+                    Pattern.List.class);
+            JAnnotationArrayMember listValue = patternListAnnotation.
+                    paramArray("value");
+            String basePattern = ((XSSimpleType) simpleType.
+                    getBaseType()).getFacet("pattern").getValue().value;
+            listValue.annotate(Pattern.class).param("regexp",
+                    replaceXmlProprietals(basePattern));
+            // cxf-codegen fix
+            if (!"\\c+".equals(pattern)) {
+                log("@Pattern(" + pattern + "): " + propertyName +
                         " added to class " + className);
-                annotate.param("value", maxExclusive.getValue().value);
-                annotate.param("inclusive", false);
-            } else {
-                final BigInteger value = new BigInteger(
-                        maxExclusive.getValue().value).subtract(BigInteger.ONE);
-                log("@DecimalMax(" + value.toString() + "): " + propertyName +
-                        " added to class " + className);
-                annotate.param("value", value.toString());
-            }
-        }
-        XSFacet minExclusive = simpleType.getFacet("minExclusive");
-        if (minExclusive != null && Utils.isNumber(field) && isValidValue(
-                minExclusive) &&
-                !hasAnnotation(field, DecimalMin.class)) {
-            JAnnotationUse annotate = field.annotate(DecimalMin.class);
-            if (jsr349) {
-                log("@DecimalMin(value = " + minExclusive.getValue().value +
-                        ", inclusive = false): " + propertyName +
-                        " added to class " + className);
-                annotate.param("value", minExclusive.getValue().value);
-                annotate.param("inclusive", false);
-            } else {
-                final BigInteger value = new BigInteger(
-                        minExclusive.getValue().value).add(BigInteger.ONE);
-                log("@DecimalMax(" + value.toString() + "): " + propertyName +
-                        " added to class " + className);
-                annotate.param("value", value.toString());
-            }
-        }
-
-        if (simpleType.getFacet("totalDigits") != null && Utils.isNumber(field)) {
-            Integer totalDigits = simpleType.getFacet("totalDigits") == null ?
-                    null :
-                    Utils.parseInt(simpleType.getFacet("totalDigits").
-                            getValue().value);
-            int fractionDigits = simpleType.getFacet("fractionDigits") == null ?
-                    0 :
-                    Utils.parseInt(simpleType.getFacet("fractionDigits").
-                            getValue().value);
-            if (!hasAnnotation(field, Digits.class)) {
-                log("@Digits(" + totalDigits + "," + fractionDigits + "): " +
-                        propertyName +
-                        " added to class " + className);
-                JAnnotationUse annox = field.annotate(Digits.class).param(
-                        "integer", totalDigits);
-                annox.param("fraction", fractionDigits);
-            }
-            if (jpaAnnotations) {
-                field.annotate(Column.class).param("precision", totalDigits).
-                        param("scale", fractionDigits);
-            }
-        }
-        /**
-         * <annox:annotate annox:class="javax.validation.constraints.Pattern"
-         * message="Name can only contain capital letters, numbers and the symbols '-', '_', '/', ' '"
-         * regexp="^[A-Z0-9_\s//-]*" />
-         */
-        List<XSFacet> patternList = simpleType.getFacets("pattern");
-        if (patternList.size() > 1) { // More than one pattern
-            if ("String".equals(field.type().name())) {
-                if (simpleType.getBaseType() instanceof XSSimpleType &&
-                        ((XSSimpleType) simpleType.getBaseType())
-                                .getFacet("pattern") != null) {
-                    log("@Pattern.List: " + propertyName + " added to class " +
-                            className);
-                    JAnnotationUse patternListAnnotation = field.annotate(
-                            Pattern.List.class);
-                    JAnnotationArrayMember listValue = patternListAnnotation.
-                            paramArray("value");
-
-                    String basePattern = ((XSSimpleType) simpleType.
-                            getBaseType()).getFacet("pattern").getValue().value;
+                if (!hasAnnotation(field, Pattern.class)) {
                     listValue.annotate(Pattern.class).param("regexp",
-                            replaceXmlProprietals(basePattern));
+                            replaceXmlProprietals(pattern));
+                }
+            }
+        } else {
+            // cxf-codegen fix
+            if (!"\\c+".equals(pattern)) {
+                log("@Pattern(" + pattern + "): " + propertyName +
+                        " added to class " + className);
+                if (!hasAnnotation(field, Pattern.class)) {
+                    field.annotate(Pattern.class).param("regexp",
+                            replaceXmlProprietals(pattern));
+                }
+            }
+        }
+    }
 
-                    log("@Pattern: " + propertyName + " added to class " +
-                            className);
-                    final JAnnotationUse patternAnnotation = listValue.annotate(
-                            Pattern.class);
-                    annotateMultiplePattern(patternList, patternAnnotation);
-                } else {
-                    log("@Pattern: " + propertyName + " added to class " +
-                            className);
-                    final JAnnotationUse patternAnnotation = field.annotate(
-                            Pattern.class);
-                    annotateMultiplePattern(patternList, patternAnnotation);
-                }
-            }
-        } else if (simpleType.getFacet("pattern") != null) {
-            String pattern = simpleType.getFacet("pattern").getValue().value;
-            if ("String".equals(field.type().name())) {
-                if (simpleType.getBaseType() instanceof XSSimpleType &&
-                        ((XSSimpleType) simpleType.getBaseType())
-                                .getFacet("pattern") != null) {
-                    log("@Pattern.List: " + propertyName + " added to class " +
-                            className);
-                    JAnnotationUse patternListAnnotation = field.annotate(
-                            Pattern.List.class);
-                    JAnnotationArrayMember listValue = patternListAnnotation.
-                            paramArray("value");
-                    String basePattern = ((XSSimpleType) simpleType.
-                            getBaseType()).getFacet("pattern").getValue().value;
-                    listValue.annotate(Pattern.class).param("regexp",
-                            replaceXmlProprietals(basePattern));
-                    // cxf-codegen fix
-                    if (!"\\c+".equals(pattern)) {
-                        log("@Pattern(" + pattern + "): " + propertyName +
-                                " added to class " + className);
-                        if (!hasAnnotation(field, Pattern.class)) {
-                            listValue.annotate(Pattern.class).param("regexp",
-                                    replaceXmlProprietals(pattern));
-                        }
-                    }
-                } else {
-                    // cxf-codegen fix
-                    if (!"\\c+".equals(pattern)) {
-                        log("@Pattern(" + pattern + "): " + propertyName +
-                                " added to class " + className);
-                        if (!hasAnnotation(field, Pattern.class)) {
-                            field.annotate(Pattern.class).param("regexp",
-                                    replaceXmlProprietals(pattern));
-                        }
-                    }
-                }
-            }
-        } else if ("String".equals(field.type().name())) {
-            final List<XSFacet> enumerationList = simpleType.getFacets(
-                    "enumeration");
-            if (enumerationList.size() > 1) { // More than one pattern
-                log("@Pattern: " + propertyName + " added to class " + className);
-                final JAnnotationUse patternListAnnotation = field.annotate(
-                        Pattern.class);
-                annotateMultipleEnumerationPattern(enumerationList,
-                        patternListAnnotation);
-            } else if (simpleType.getFacet("enumeration") != null) {
-                final String pattern = simpleType.getFacet("enumeration").
-                        getValue().value;
-                // cxf-codegen fix
-                if (!"\\c+".equals(pattern)) {
-                    log("@Pattern(" + pattern + "): " + propertyName +
-                            " added to class " + className);
-                    field.annotate(Pattern.class).param("regexp", escapeRegex(
-                            replaceXmlProprietals(pattern)));
-                }
-            }
+    private void addPatternAnnotation(XSSimpleType simpleType, String propertyName, String className,
+            JFieldVar field, List<XSFacet> patternList) {
+        if (simpleType.getBaseType() instanceof XSSimpleType &&
+                ((XSSimpleType) simpleType.getBaseType())
+                        .getFacet("pattern") != null) {
+            log("@Pattern.List: " + propertyName + " added to class " +
+                    className);
+            JAnnotationUse patternListAnnotation = field.annotate(
+                    Pattern.List.class);
+            JAnnotationArrayMember listValue = patternListAnnotation.
+                    paramArray("value");
+            
+            String basePattern = ((XSSimpleType) simpleType.
+                    getBaseType()).getFacet("pattern").getValue().value;
+            listValue.annotate(Pattern.class).param("regexp",
+                    replaceXmlProprietals(basePattern));
+            
+            log("@Pattern: " + propertyName + " added to class " +
+                    className);
+            final JAnnotationUse patternAnnotation = listValue.annotate(
+                    Pattern.class);
+            annotateMultiplePattern(patternList, patternAnnotation);
+        } else {
+            log("@Pattern: " + propertyName + " added to class " +
+                    className);
+            final JAnnotationUse patternAnnotation = field.annotate(
+                    Pattern.class);
+            annotateMultiplePattern(patternList, patternAnnotation);
         }
     }
 
@@ -524,19 +465,140 @@ public class JaxbValidationsPlugins extends Plugin {
         patternAnnotation.param("regexp", sb.substring(0, sb.length() - 1));
     }
 
-    private void annotateMultipleEnumerationPattern(
-            final List<XSFacet> patternList,
-            final JAnnotationUse patternAnnotation) {
-        StringBuilder sb = new StringBuilder();
-        for (XSFacet xsFacet : patternList) {
-            final String value = xsFacet.getValue().value;
-            // cxf-codegen fix
-            if (!"\\c+".equals(value)) {
-                sb.append("(").append(escapeRegex(replaceXmlProprietals(value))).
-                        append(")|");
-            }
+    private void addDigitAndJpaColumnAnnotation(XSSimpleType simpleType, JFieldVar field,
+            String propertyName, String className) {
+        Integer totalDigits = getFacet(simpleType, "totalDigits");
+        int fractionDigits = getFacet(simpleType, "fractionDigits");
+        
+        if (!hasAnnotation(field, Digits.class)) {
+            log("@Digits(" + totalDigits + "," + fractionDigits + "): " +
+                    propertyName +
+                    " added to class " + className);
+            field.annotate(Digits.class)
+                    .param("integer", totalDigits)
+                    .param("fraction", fractionDigits);
         }
-        patternAnnotation.param("regexp", sb.substring(0, sb.length() - 1));
+        if (jpaAnnotations) {
+            field.annotate(Column.class).param("precision", totalDigits).
+                    param("scale", fractionDigits);
+        }
+    }
+
+    private void addDecimalMinAnnotation(JFieldVar field, XSFacet minExclusive, String propertyName,
+            String className) {
+        JAnnotationUse annotate = field.annotate(DecimalMin.class);
+        if (jsr349) {
+            log("@DecimalMin(value = " + minExclusive.getValue().value +
+                    ", inclusive = false): " + propertyName +
+                    " added to class " + className);
+            annotate.param("value", minExclusive.getValue().value);
+            annotate.param("inclusive", false);
+        } else {
+            final BigInteger value = new BigInteger(
+                    minExclusive.getValue().value).add(BigInteger.ONE);
+            log("@DecimalMax(" + value.toString() + "): " + propertyName +
+                    " added to class " + className);
+            annotate.param("value", value.toString());
+        }
+    }
+
+    private void addDecimalMaxAnnotation(JFieldVar field, XSFacet maxExclusive, String propertyName,
+            String className) {
+        JAnnotationUse annotate = field.annotate(DecimalMax.class);
+        
+        if (jsr349) {
+            log("@DecimalMax(value = " + maxExclusive.getValue().value +
+                    ", inclusive = false): " + propertyName +
+                    " added to class " + className);
+            annotate.param("value", maxExclusive.getValue().value);
+            annotate.param("inclusive", false);
+            
+        } else {
+            final BigInteger value = new BigInteger(
+                    maxExclusive.getValue().value)
+                    .subtract(BigInteger.ONE);
+            log("@DecimalMax(" + value.toString() + "): " + propertyName +
+                    " added to class " + className);
+            annotate.param("value", value.toString());
+            
+        }
+    }
+
+    private void addDecimalMinAnnotation(XSFacet minInclusive, String propertyName, String className,
+            JFieldVar field) {
+        log("@DecimalMin(" + minInclusive.getValue().value + "): " +
+                propertyName +
+                " added to class " + className);
+        field.annotate(DecimalMin.class).param("value", minInclusive.
+                getValue().value);
+    }
+
+    //TODO minExclusive=0, fractionDigits=2 wrong annotation https://github.com/krasa/krasa-jaxb-tools/issues/38 
+    private void addDecimalMaxAnnotation(XSFacet maxInclusive, String propertyName, String className,
+            JFieldVar field) {
+        log("@DecimalMax(" + maxInclusive.getValue().value + "): " +
+                propertyName +
+                " added to class " + className);
+        field.annotate(DecimalMax.class)
+                .param("value", maxInclusive.getValue().value);
+    }
+
+    private void addJpaColumnAnnotation(XSSimpleType simpleType, String propertyName,
+            String className, JFieldVar field) {
+        Integer maxLength = getFacet(simpleType, "maxLength");
+        if (maxLength != null) {
+            log("@Column(null, " + maxLength + "): " + propertyName +
+                    " added to class " + className);
+            field.annotate(Column.class).param("length", maxLength);
+        }
+    }
+
+    private void addSizeAnnotation(XSSimpleType simpleType, String propertyName, String className,
+            JFieldVar field) {
+        Integer maxLength = getFacet(simpleType, "maxLength");
+        Integer minLength = getFacet(simpleType, "minLength");
+        Integer length = getFacet(simpleType, "length");
+        
+        if (maxLength != null && minLength != null) {
+            log("@Size(" + minLength + "," + maxLength + "): " +
+                    propertyName + " added to class " +
+                    className);
+            field.annotate(Size.class)
+                    .param("min", minLength)
+                    .param("max", maxLength);
+            
+        } else if (minLength != null) {
+            log("@Size(" + minLength + ", null): " + propertyName +
+                    " added to class " + className);
+            field.annotate(Size.class)
+                    .param("min", minLength);
+            
+        } else if (maxLength != null) {
+            log("@Size(null, " + maxLength + "): " + propertyName +
+                    " added to class " + className);
+            field.annotate(Size.class)
+                    .param("max", maxLength);
+            
+        } else if (length != null) {
+            log("@Size(" + length + "," + length + "): " + propertyName +
+                    " added to class " + className);
+            field.annotate(Size.class)
+                    .param("min", length)
+                    .param("max", length);
+        }
+    }
+
+    private Integer getFacet(XSSimpleType simpleType, String name) {
+        final XSFacet facet = simpleType.getFacet(name);
+        if (facet == null) {
+            return null;
+        }
+        final String value = facet.getValue().value;
+        try {
+            return Integer.parseInt(value);
+        } catch (NumberFormatException e) {
+            return null;
+        }
     }
 
     private String replaceXmlProprietals(String pattern) {
@@ -576,7 +638,7 @@ public class JaxbValidationsPlugins extends Plugin {
 //				}
 //			}
 //		}
-        validAnnotation(type, var, propertyName, className);
+        addValidAnnotation(type, var, propertyName, className);
         processType(type, var, propertyName, className);
     }
 
@@ -597,11 +659,11 @@ public class JaxbValidationsPlugins extends Plugin {
         JFieldVar var = clase.implClass.fields().get(propertyName);
         if (particle.isRequired()) {
             if (!hasAnnotation(var, NotNull.class)) {
-                addNotNullValidation(clase, var);
+                addNotNullAnnotation(clase, var);
             }
         }
 
-        validAnnotation(type, var, propertyName, className);
+        addValidAnnotation(type, var, propertyName, className);
         processType(type, var, propertyName, className);
     }
 
