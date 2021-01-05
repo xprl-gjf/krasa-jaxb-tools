@@ -79,17 +79,12 @@ class Utils {
         }
     }
 
-    public static boolean equals(String value, long val) {
-        return value.equals(BigInteger.valueOf(val).toString());
-    }
-
     public static boolean isMin(String value) {
-        return equals(value, -9223372036854775808L) || equals(value,
-                -2147483648L);
+        return "-9223372036854775808".equals(value) || "-2147483648".equals(value);
     }
 
     public static boolean isMax(String value) {
-        return equals(value, 9223372036854775807L) || equals(value, 2147483647L);
+        return "9223372036854775807".equals(value) || "2147483647".equals(value);
     }
 
     public static boolean isNumber(JFieldVar field) {

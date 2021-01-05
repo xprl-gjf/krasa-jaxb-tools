@@ -1,6 +1,11 @@
+
+This is a modified version of the krasa-jaxb-toos. It has been heavily refactored and optimized
+without touching functionality and usage.
+Some new bugs might have been introduced but the code should be more pleasant to navigate and debug.
+
+
 [![Maven Central](https://img.shields.io/maven-central/v/com.github.krasa/krasa-jaxb-tools.svg)](https://maven-badges.herokuapp.com/maven-central/com.github.krasa/krasa-jaxb-tools/)
 
->NOTE: I no longer use and maintain this plugin.
 
 
 Contains:
