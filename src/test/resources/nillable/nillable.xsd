@@ -4,12 +4,21 @@
     xmlns:a="a"
     elementFormDefault="qualified">
 
-    <xsd:element name="main" type="a:Main"/>
+    <xsd:element name="nillable" type="a:Nillable"/>
 
-    <xsd:complexType name="Main">
+    <xsd:complexType name="Nillable">
         <xsd:sequence>
-            <xsd:element minOccurs="1" maxOccurs="1" nillable="true" 
-                name="notNullString" type="xsd:string"/>
+            <xsd:element 
+                name="notNullable" type="xsd:string"/>
+            
+            <xsd:element minOccurs="0" nillable="false" 
+                name="nullable" type="xsd:string"/>
+            
+            <!-- these two other options are really esoteric and never used in practice -->
+            <xsd:element minOccurs="0" nillable="true" 
+                name="mustBeOmittedOrBeNil" type="xsd:string"/>
+            <xsd:element minOccurs="1" nillable="true" 
+                name="mustBeThereAndBeNil" type="xsd:string"/>
         </xsd:sequence>
     </xsd:complexType>
 

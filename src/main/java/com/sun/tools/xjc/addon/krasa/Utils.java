@@ -47,6 +47,7 @@ class Utils {
         return null;
     }
 
+    // TODO this
     public static Object getField(String path, Object obj) {
         try {
             int idx = path.indexOf(".");
@@ -68,15 +69,6 @@ class Utils {
                     " not found on " + obj.getClass().getName());
         }
         return null;
-    }
-
-    @Deprecated
-    public static Integer parseInt(String value) {
-        try {
-            return Integer.parseInt(value);
-        } catch (NumberFormatException e) {
-            return null;
-        }
     }
 
     public static boolean isMin(String value) {

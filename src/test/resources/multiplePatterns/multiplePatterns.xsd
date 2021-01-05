@@ -4,9 +4,9 @@
     xmlns:a="a"
     elementFormDefault="qualified">
 
-    <xsd:element name="main" type="a:Main"/>
+    <xsd:element name="multipattern" type="a:Multipattern"/>
 
-    <xsd:complexType name="Main">
+    <xsd:complexType name="Multipattern">
         <xsd:sequence>
             <xsd:element maxOccurs="1" minOccurs="0" name="multiplePatterns" type="a:patternList"/>
         </xsd:sequence>

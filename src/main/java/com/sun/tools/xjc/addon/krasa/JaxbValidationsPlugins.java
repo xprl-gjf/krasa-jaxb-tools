@@ -29,7 +29,12 @@ import javax.validation.constraints.*;
 import org.xml.sax.ErrorHandler;
 
 /**
- * big thanks to original author: cocorossello
+ * 
+ * @see https://github.com/krasa/krasa-jaxb-tools
+ * 
+ * @author cocorossello
+ * @author Vojtěch Krása
+ * @author Francesco Illuminati <fillumina@gmail.com>
  */
 public class JaxbValidationsPlugins extends Plugin {
 
@@ -138,7 +143,6 @@ public class JaxbValidationsPlugins extends Plugin {
 
     @Override
     public boolean run(Outline model, Options opt, ErrorHandler errorHandler) {
-//        try {
         for (ClassOutline co : model.getClasses()) {
             List<CPropertyInfo> properties = co.target.getProperties();
 
@@ -156,10 +160,6 @@ public class JaxbValidationsPlugins extends Plugin {
             }
         }
         return true;
-//        } catch (Exception e) {
-//            log(e);
-//            return false;
-//        }
     }
 
     /**
@@ -626,7 +626,6 @@ public class JaxbValidationsPlugins extends Plugin {
         processType(type, var, propertyName, className);
     }
 
-    /** XS:Attribute */
     public void processAttribute(CAttributePropertyInfo property,
             ClassOutline clase, Outline model) {
         FieldOutline field = model.getField(property);
@@ -673,8 +672,8 @@ public class JaxbValidationsPlugins extends Plugin {
 
     @SuppressWarnings({"unchecked", "rawtypes"})
     public boolean hasAnnotation(JFieldVar var, Class annotationClass) {
-        List<JAnnotationUse> list = (List<JAnnotationUse>) Utils.getField(
-                "annotations", var);
+        List<JAnnotationUse> list = 
+                (List<JAnnotationUse>) Utils.getField("annotations", var);
         if (list != null) {
             for (JAnnotationUse annotationUse : list) {
                 if (((Class) Utils.getField("clazz._class", annotationUse)).
@@ -689,10 +688,6 @@ public class JaxbValidationsPlugins extends Plugin {
 
     private String propertyName(CElementPropertyInfo property) {
         return property.getName(false);
-    }
-
-    private void log(Exception e) {
-        e.printStackTrace();
     }
 
     private void log(String log) {

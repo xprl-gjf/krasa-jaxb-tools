@@ -13,16 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package tests;
+package com.sun.tools.xjc.addon.krasa;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.apache.maven.project.MavenProject;
+import org.jvnet.jaxb2.maven2.AbstractXJC2Mojo;
 import org.jvnet.jaxb2.maven2.test.RunXJC2Mojo;
 
 /**
@@ -31,14 +34,49 @@ import org.jvnet.jaxb2.maven2.test.RunXJC2Mojo;
  */
 public abstract class RunXJC2MojoTestHelper extends RunXJC2Mojo {
 
+    public abstract String getFolderName();
+    
+    public String getNamespace() {
+        return "";
+    }
+    
+    // artifact creation happens before test executions!
     public void setUp() throws Exception {
         super.testExecute();
     }
 
     public void testExecute() throws Exception {
-        // override RunXJC2Mojo own method
+        // override RunXJC2Mojo own method to allow tests to be executed after mojo creation
     }
     
+    @Override
+    public File getGeneratedDirectory() {
+        return new File(getBaseDir(), "target/generated-sources/" + getFolderName());
+    }
+
+    @Override
+    public File getSchemaDirectory() {
+        return new File(getBaseDir(), "src/test/resources/" + getFolderName());
+    }
+
+    @Override
+    protected void configureMojo(AbstractXJC2Mojo mojo) {
+        super.configureMojo(mojo);
+        mojo.setProject(new MavenProject());
+        mojo.setForceRegenerate(true);
+        mojo.setExtension(true);
+    }
+
+    @Override
+    public List<String> getArgs() {
+        final List<String> args = new ArrayList<>(super.getArgs());
+        args.add("-XJsr303Annotations");
+        args.add("-XJsr303Annotations:targetNamespace=" + getNamespace());
+        // args.add("-XJsr303Annotations:targetNamespace=a");
+        // args.add("-XJsr303Annotations:JSR_349=true");
+        return args;
+    }
+
     public ArtifactTester element(String elementName) {
         final String filename = elementName + ".java";
         List<String> lines;
@@ -51,8 +89,10 @@ public abstract class RunXJC2MojoTestHelper extends RunXJC2Mojo {
     }
 
     private List<String> readFile(String filename) throws IOException {
+        String ns = getNamespace();
+        ns = ns.isBlank() ? "generated" : ns;
         String fullPath = getGeneratedDirectory().getAbsolutePath() + File.separator +
-                "generated" + File.separator + filename;
+                ns + File.separator + filename;
         Path path = Paths.get(fullPath);
         List<String> content = Files.readAllLines(path);
         return content;
@@ -69,10 +109,15 @@ public abstract class RunXJC2MojoTestHelper extends RunXJC2Mojo {
         }
 
         public AttributeTester attribute(String attributeName) {
+            List<String> annotationList = getAnnotations(attributeName);
+            return new AttributeTester(this, filename, attributeName, annotationList);
+        }
+
+        public List<String> getAnnotations(String attributeName) {
             int line = getLineForAttribute(attributeName);
             int prevAttribute = prevAttributeLine(attributeName, line);
             List<String> annotationList = lines.subList(prevAttribute, line);
-            return new AttributeTester(this, filename, attributeName, annotationList);
+            return annotationList;
         }
 
         public RunXJC2MojoTestHelper end() {
@@ -132,6 +177,15 @@ public abstract class RunXJC2MojoTestHelper extends RunXJC2Mojo {
                             " in " + filename + " not found "));
             return new AnnotationTester(this, line, annotation);
         }
+
+        public AttributeTester assertNoAnnotationsPresent() {
+            if (!annotationList.isEmpty()) {
+                throw new AssertionError(
+                        "attribute " + attributeName +
+                        " in " + filename + " contains annotations: " + annotationList.toString());
+            }
+            return this;
+        }
     }
 
     public static class AnnotationTester {
@@ -157,13 +211,17 @@ public abstract class RunXJC2MojoTestHelper extends RunXJC2Mojo {
             }
         }
 
-        public AnnotationTester assertNoValues() {
+        public AttributeTester end() {
+            return parent;
+        }
+
+        public AttributeTester assertNoValues() {
             if (!valueMap.isEmpty()) {
                 throw new AssertionError("annotation " + annotation +
                         " of attribute " + parent.attributeName +
                         " in " + parent.filename + " not empty: " + valueMap);
             }
-            return this;
+            return parent;
         }
 
         public AnnotationTester assertValue(String name, Object value) {
@@ -172,6 +230,9 @@ public abstract class RunXJC2MojoTestHelper extends RunXJC2Mojo {
                 throw new AssertionError("annotation " + annotation +
                         " of attribute " + parent.attributeName +
                         " in " + parent.filename + " not found: " + valueMap);
+            }
+            if (v.startsWith("\"")) {
+                v = ((String) value).substring(0, ((String)value).length());
             }
             if (!v.equals(value.toString())) {
                 throw new AssertionError("annotation " + annotation +
