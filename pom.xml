@@ -51,7 +51,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven-jaxb2-plugin.version>0.8.2</maven-jaxb2-plugin.version>
         <jaxb.version>2.2.6</jaxb.version>
-        <validation-api.version>1.0.0.GA</validation-api.version>
+        <validation-api.version>2.0.1.Final</validation-api.version>
         <hibernate-validator.version>4.2.0.Final</hibernate-validator.version>
         <jaxb-api.version>2.2</jaxb-api.version>
         <maven-source-plugin.version>2.2</maven-source-plugin.version>

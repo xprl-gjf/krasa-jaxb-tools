@@ -442,13 +442,10 @@ public class JaxbValidationPlugin extends Plugin {
                     .param("inclusive", !exclusive);
 
         } else {
-            if (exclusive) {
-                min = min.add(BigDecimal.ONE);
-            }
-
             log("@DecimalMin(" + min + "): " + propertyName + " added to class " + className);
             
-            annotate.param("value", min.toString());
+            annotate.param("value", min.toString())
+                    .param("inclusive", !exclusive);
         }
     }
     
@@ -471,13 +468,10 @@ public class JaxbValidationPlugin extends Plugin {
                     .param("inclusive", (!exclusive));
 
         } else {
-            if (exclusive) {
-                max = max.subtract(BigDecimal.ONE);
-            }
-            
             log("@DecimalMax(" + max + "): " + propertyName +  " added to class " + className);
             
-            annotate.param("value", max.toString());
+            annotate.param("value", max.toString())
+                    .param("inclusive", (!exclusive));
         }
     }
 

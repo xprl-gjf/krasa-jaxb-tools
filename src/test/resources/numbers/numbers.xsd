@@ -17,8 +17,8 @@
             <xsd:element name="positiveIntegerValue" type="xsd:positiveInteger"/>
 
             <xsd:element name="valueDimension" type="a:Dimension"/>
-            <xsd:element name="valuePositiveNonZeroDimensionIncl" type="a:PositiveNonZeroDimensionIncl"/>
-            <xsd:element name="valuePositiveNonZeroDimensionExcl" type="a:PositiveNonZeroDimensionExcl"/>
+            <xsd:element name="valuePositiveDimension" type="a:PositiveDimension"/>
+            <xsd:element name="valuePositiveNonZeroDimension" type="a:PositiveNonZeroDimension"/>
             <xsd:element name="valueFourPositiveNonZeroDecimal" type="a:FourPositiveNonZeroDecimal"/>
             <xsd:element name="valueSixDigitDecimalFractionOne" type="a:SixDigitDecimalFractionOne"/>
             
@@ -34,14 +34,14 @@
             <xsd:fractionDigits value="2" fixed="true"/>
         </xsd:restriction>
     </xsd:simpleType>
-    <xsd:simpleType name="PositiveNonZeroDimensionIncl">
+    <xsd:simpleType name="PositiveDimension">
         <xsd:restriction base="xsd:decimal">
             <xsd:totalDigits value="12"/>
             <xsd:fractionDigits value="2" fixed="true"/>
             <xsd:minInclusive value="0.00"/>
         </xsd:restriction>
     </xsd:simpleType>
-    <xsd:simpleType name="PositiveNonZeroDimensionExcl">
+    <xsd:simpleType name="PositiveNonZeroDimension">
         <xsd:restriction base="xsd:decimal">
             <xsd:totalDigits value="12"/>
             <xsd:fractionDigits value="2" fixed="true"/>
