@@ -402,8 +402,14 @@ public class JaxbValidationPlugin extends Plugin {
             String propertyName, String className) {
 
         Integer totalDigits = getFacet(simpleType, "totalDigits");
-        int fractionDigits = getFacet(simpleType, "fractionDigits");
-
+        Integer fractionDigits = getFacet(simpleType, "fractionDigits");
+        if (totalDigits == null) {
+            totalDigits = 0;
+        }
+        if (fractionDigits == null) {
+            fractionDigits = 0;
+        }
+        
         if (!hasAnnotation(field, Digits.class)) {
             log("@Digits(" + totalDigits + "," + fractionDigits + "): " + propertyName +
                     " added to class " + className);
