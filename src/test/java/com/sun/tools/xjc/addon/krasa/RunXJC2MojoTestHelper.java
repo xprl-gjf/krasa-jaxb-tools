@@ -109,12 +109,19 @@ public abstract class RunXJC2MojoTestHelper extends RunXJC2Mojo {
         }
 
         public AttributeTester attribute(String attributeName) {
-            List<String> annotationList = getAnnotations(attributeName);
-            return new AttributeTester(this, filename, attributeName, annotationList);
+            int line = getLineForAttribute(attributeName);
+            List<String> annotationList = getAnnotations(attributeName, line);
+            String definition = lines.get(line);
+            return new AttributeTester(this, filename, attributeName, 
+                    definition, annotationList);
         }
 
         public List<String> getAnnotations(String attributeName) {
             int line = getLineForAttribute(attributeName);
+            return getAnnotations(attributeName, line);
+        }
+
+        private List<String> getAnnotations(String attributeName, int line) {
             int prevAttribute = prevAttributeLine(attributeName, line);
             List<String> annotationList = lines.subList(prevAttribute, line);
             return annotationList;
@@ -154,13 +161,15 @@ public abstract class RunXJC2MojoTestHelper extends RunXJC2Mojo {
         private final ArtifactTester parent;
         private final String filename;
         private final String attributeName;
+        private final String definition;
         private final List<String> annotationList;
 
         public AttributeTester(ArtifactTester parent, String filename, String attributeName,
-                List<String> annotationList) {
+                String definition, List<String> annotationList) {
             this.parent = parent;
             this.filename = filename;
             this.attributeName = attributeName;
+            this.definition = definition;
             this.annotationList = annotationList;
         }
 
@@ -168,6 +177,16 @@ public abstract class RunXJC2MojoTestHelper extends RunXJC2Mojo {
             return parent;
         }
 
+        public AttributeTester assertClass(Class<?> clazz) {
+            String className = clazz.getSimpleName();
+            if (!definition.contains(className + " ")) {
+                throw new AssertionError("attribute " + attributeName +
+                            " in " + filename + " expected of class " + clazz.getName() + 
+                        " but is: " + definition);
+            }
+            return this;
+        }
+        
         public AnnotationTester annotation(String annotation) {
             String line = annotationList.stream()
                     .filter(l -> l.trim().startsWith("@" + annotation))
@@ -199,14 +218,25 @@ public abstract class RunXJC2MojoTestHelper extends RunXJC2Mojo {
             this.parent = parent;
             this.line = line;
             this.annotation = annotationName;
+            
+            parseAnnotationValues(line);
+        }
 
-            if (line.contains("=")) {
-                int start = line.indexOf("(");
-                String values = line.substring(start + 1, line.length() - 1);
-                String[] pairs = values.split(",");
-                for (String p : pairs) {
-                    String[] kv = p.split("=");
-                    valueMap.put(kv[0].trim(), kv[1].trim());
+        private void parseAnnotationValues(String line1) {
+            String values = "";
+            if (line1.contains("(")) {
+                int start = line1.indexOf("(");
+                values = line1.substring(start + 1, line1.length() - 1);
+            }
+            if (!values.isBlank()) {
+                if (line1.contains("=")) {
+                    String[] pairs = values.split(",");
+                    for (String p : pairs) {
+                        String[] kv = p.split("=");
+                        valueMap.put(kv[0].trim(), kv[1].trim());
+                    }
+                } else {
+                    valueMap.put("value", values);
                 }
             }
         }
@@ -224,15 +254,20 @@ public abstract class RunXJC2MojoTestHelper extends RunXJC2Mojo {
             return parent;
         }
 
-        public AnnotationTester assertValue(String name, Object value) {
-            String v = valueMap.get(name);
+        public AttributeTester assertValue(Object value) {
+            assertParam("value", value);
+            return parent;
+        }
+
+        public AnnotationTester assertParam(String name, Object value) {
+            String v = valueMap.get(name).toString();
             if (v == null) {
                 throw new AssertionError("annotation " + annotation +
                         " of attribute " + parent.attributeName +
                         " in " + parent.filename + " not found: " + valueMap);
             }
-            if (v.startsWith("\"")) {
-                v = ((String) value).substring(0, ((String)value).length());
+            while (v.startsWith("\"")) {
+                v = v.substring(1, v.length()-1);
             }
             if (!v.equals(value.toString())) {
                 throw new AssertionError("annotation " + annotation +

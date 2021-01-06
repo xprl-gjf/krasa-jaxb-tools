@@ -21,12 +21,12 @@ public class EnumerationTest extends RunXJC2MojoTestHelper {
         element("NaturalPerson")
                 .attribute("sex")
                         .annotation("Pattern")
-                                .assertValue("regexp", "(\\Qf\\E)|(\\Qm\\E)")
+                                .assertParam("regexp", "(\\Qf\\E)|(\\Qm\\E)")
                         .end()
                 .end()
                 .attribute("age")
                         .annotation("Pattern")
-                                .assertValue("regexp", "(\\Q0 (toddler)\\E)|(\\Q1-5\\E)|" +
+                                .assertParam("regexp", "(\\Q0 (toddler)\\E)|(\\Q1-5\\E)|" +
                                                 "(\\Q5-12\\E)|(\\Q12-18\\E)|(\\Q18+\\E)");
     }
     

@@ -16,7 +16,7 @@ public class MultiplePatternTest extends RunXJC2MojoTestHelper {
         element("Multipattern")
                 .attribute("multiplePatterns")
                         .annotation("Pattern")
-                                .assertValue("regexp", "([0-9])|([A-B])");
+                                .assertParam("regexp", "([0-9])|([A-B])");
     }
 
 }

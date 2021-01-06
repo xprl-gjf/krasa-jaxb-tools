@@ -15,7 +15,7 @@ public class ArrayTest extends RunXJC2MojoTestHelper {
     public void test() {
         element("Array")
                 .attribute("arrayOfBytes")
-                        .annotation("Size").assertValue("max", 18).end()
+                        .annotation("Size").assertParam("max", 18).end()
                         .annotation("NotNull").assertNoValues();
     }
 

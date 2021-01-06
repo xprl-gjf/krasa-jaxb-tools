@@ -16,12 +16,12 @@ public class ChoicesTest extends RunXJC2MojoTestHelper {
         element("Choices")
                 .attribute("tea")
                         .annotation("XmlElement")
-                                .assertValue("name", "Tea")
+                                .assertParam("name", "Tea")
                         .end()
                 .end()
                 .attribute("coffee")
                         .annotation("XmlElement")
-                                .assertValue("name", "Coffee")
+                                .assertParam("name", "Coffee")
                         .end()
                 .end();
     }

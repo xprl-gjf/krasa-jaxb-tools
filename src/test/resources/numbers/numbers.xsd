@@ -1,0 +1,21 @@
+<xsd:schema
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    targetNamespace="a"
+    xmlns:a="a"
+    elementFormDefault="qualified">
+
+    <xsd:element name="numbers" type="a:Numbers"/>
+
+    <xsd:complexType name="Numbers">
+        <xsd:sequence>
+            <xsd:element name="decimalValue" type="xsd:decimal"/>
+            <xsd:element name="integerValue" type="xsd:integer"/>
+            <xsd:element name="negativeIntegerValue" type="xsd:negativeInteger"/>
+            <xsd:element name="nonPositiveIntegerValue" type="xsd:nonPositiveInteger"/>
+            <xsd:element name="nonNegativeIntegerValue" type="xsd:nonNegativeInteger"/>
+            <xsd:element name="positiveIntegerValue" type="xsd:positiveInteger"/>
+
+        </xsd:sequence>
+    </xsd:complexType>
+
+</xsd:schema>

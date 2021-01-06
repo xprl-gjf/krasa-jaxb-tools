@@ -36,7 +36,7 @@ import org.xml.sax.ErrorHandler;
  * @author Vojtěch Krása
  * @author Francesco Illuminati <fillumina@gmail.com>
  */
-public class JaxbValidationsPlugins extends Plugin {
+public class JaxbValidationPlugin extends Plugin {
 
     private static final String PLUGIN_OPTION_NAME = "XJsr303Annotations";
     private static final String TARGET_NAMESPACE_PARAMETER =

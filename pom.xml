@@ -10,14 +10,13 @@
 
     <groupId>com.github.krasa</groupId>
     <artifactId>krasa-jaxb-tools</artifactId>
-    <version>1.8</version>
+    <version>2.0</version>
     <packaging>jar</packaging>
 
     <name>krasa-jaxb-tools</name>
 
     <description>
-        JAXB plugins for generation of Bean Validation Annotations 
-        (JSR-303) and replacing primitive types
+        JAXB plugin for generation of Bean Validation Annotations (JSR-303)
     </description>
 
     <url>https://github.com/krasa/krasa-jaxb-tools/</url>
@@ -31,12 +30,16 @@
     </licenses>
 
     <scm>
-        <connection>scm:git:git@github.com:krasa/krasa-jaxb-tools.git</connection>
-        <url>git@github.com:krasa/krasa-jaxb-tools.git</url>
-        <developerConnection>scm:git:git@github.com:krasa/krasa-jaxb-tools.git</developerConnection>
+        <connection>scm:git:git@github.com:fillumina/krasa-jaxb-tools.git</connection>
+        <url>git@github.com:fillumina/krasa-jaxb-tools.git</url>
+        <developerConnection>scm:git:git@github.com:fillumina/krasa-jaxb-tools.git</developerConnection>
     </scm>
 
     <developers>
+        <developer>
+            <name>Francesco Illuminati</name>
+            <email>fillumina@gmail.com</email>
+        </developer>
         <developer>
             <name>Vojtech Krasa</name>
             <email>vojta.krasa@gmail.com</email>
@@ -66,11 +69,11 @@
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-surefire-plugin</artifactId>
                     <version>${maven-surefire-plugin.version}</version>
-                    <configuration>
+<!--                    <configuration>
                         <excludes>
                             <exclude>**/*.java</exclude>
                         </excludes>
-                    </configuration>
+                    </configuration>-->
                 </plugin>
             </plugins>
         </pluginManagement>

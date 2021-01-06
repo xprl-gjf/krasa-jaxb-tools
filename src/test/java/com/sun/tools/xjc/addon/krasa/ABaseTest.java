@@ -10,7 +10,7 @@ public class ABaseTest extends RunXJC2MojoTestHelper {
     public void testNotNullAndSizeMax() {
         element("AddressType")
                 .attribute("name")
-                        .annotation("Size").assertValue("max", 50).end()
+                        .annotation("Size").assertParam("max", 50).end()
                         .annotation("NotNull").assertNoValues();
     }
 
@@ -19,8 +19,8 @@ public class ABaseTest extends RunXJC2MojoTestHelper {
                 .attribute("countryCode")
                         .annotation("NotNull").assertNoValues()
                         .annotation("Size")
-                                .assertValue("min", 2)
-                                .assertValue("max", 2);
+                                .assertParam("min", 2)
+                                .assertParam("max", 2);
     }
 
     public void testValidAndSizeMinMax() {
@@ -28,8 +28,8 @@ public class ABaseTest extends RunXJC2MojoTestHelper {
                 .attribute("phoneNumber")
                         .annotation("Valid").assertNoValues()
                         .annotation("Size")
-                                .assertValue("min", 0)
-                                .assertValue("max", 3);
+                                .assertParam("min", 0)
+                                .assertParam("max", 3);
     }
     
     public void testAnnotationNotPresent() {
@@ -42,7 +42,7 @@ public class ABaseTest extends RunXJC2MojoTestHelper {
         element("EmailAddressType")
                 .attribute("preferredFormat")
                         .annotation("Pattern")
-                                .assertValue("regexp", 
+                                .assertParam("regexp", 
                                         "(\\\\QTextOnly\\\\E)|(\\\\QHTML\\\\E)");
     }
 }

@@ -19,7 +19,7 @@ public class NotNullTest extends RunXJC2MojoTestHelper {
         element("NotNull")
                 .attribute("notNullString")
                         .annotation("javax.validation.constraints.NotNull")
-                            .assertValue("message", "NotNull.notNullString " +
+                            .assertParam("message", "NotNull.notNullString " +
                                     "{javax.validation.constraints.NotNull.message}");
     }
 
