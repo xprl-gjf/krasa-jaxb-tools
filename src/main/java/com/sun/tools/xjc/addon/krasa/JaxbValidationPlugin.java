@@ -197,6 +197,10 @@ public class JaxbValidationPlugin extends Plugin {
         if (property.isCollection() &&
                 !hasAnnotation(field, Size.class) &&
                 (maxOccurs != 0 || minOccurs != 0)) {
+    
+            if (property.isCollectionRequired()) {
+                addNotNullAnnotation(classOutline, field);
+            }
 
             addSizeAnnotation(minOccurs, maxOccurs, null, 
                     propertyName, classOutline.implClass.name(), field);
@@ -215,19 +219,26 @@ public class JaxbValidationPlugin extends Plugin {
     }
 
     private void processElement(CElementPropertyInfo property,
-            ClassOutline clase, JFieldVar var, ElementDecl element) {
+            ClassOutline clase, JFieldVar field, ElementDecl element) {
         String propertyName = propertyName(property);
         String className = clase.implClass.name();
         XSType elementType = element.getType();
 
-        addValidAnnotation(elementType, var, propertyName, className);
-
+        addValidAnnotation(elementType, field, propertyName, className);
+        
+//        final XSSimpleType simpleType = elementType.asSimpleType();
+//        String minLength = simpleType.getFacet("minLength").getValue().value;
+//        String maxLength = simpleType.getFacet("maxLength").getValue().value;
+//        if (minLength != null || maxLength != null) {
+//            //TODO where to put these values??
+//        }
+        
         if (elementType instanceof XSSimpleType) {
-            processType((XSSimpleType) elementType, var, propertyName, className);
+            processType((XSSimpleType) elementType, field, propertyName, className);
 
         } else if (elementType.getBaseType() instanceof XSSimpleType) {
             final XSSimpleType baseType = (XSSimpleType) elementType.getBaseType();
-            processType(baseType, var, propertyName, className);
+            processType(baseType, field, propertyName, className);
         }
     }
 
@@ -335,17 +346,17 @@ public class JaxbValidationPlugin extends Plugin {
 
     }
 
-    private void addValidAnnotation(XSType elementType, JFieldVar var, String propertyName,
+    private void addValidAnnotation(XSType elementType, JFieldVar field, String propertyName,
             String className) {
 
         String elemNs = elementType.getTargetNamespace();
 
         if ((targetNamespace == null || elemNs.startsWith(targetNamespace)) &&
-                (elementType.isComplexType() || Utils.isCustomType(var)) &&
-                !hasAnnotation(var, Valid.class)) {
+                (elementType.isComplexType() || Utils.isCustomType(field)) &&
+                !hasAnnotation(field, Valid.class)) {
 
             log("@Valid: " + propertyName + " added to class " + className);
-            var.annotate(Valid.class);
+            field.annotate(Valid.class);
         }
     }
 
@@ -442,10 +453,13 @@ public class JaxbValidationPlugin extends Plugin {
                     .param("inclusive", !exclusive);
 
         } else {
+            if (exclusive) {
+                min = min.add(BigDecimal.ONE);
+            }
+            
             log("@DecimalMin(" + min + "): " + propertyName + " added to class " + className);
             
-            annotate.param("value", min.toString())
-                    .param("inclusive", !exclusive);
+            annotate.param("value", min.toString());
         }
     }
     
@@ -468,10 +482,13 @@ public class JaxbValidationPlugin extends Plugin {
                     .param("inclusive", (!exclusive));
 
         } else {
+            if (exclusive) {
+                max = max.subtract(BigDecimal.ONE);
+            }
+            
             log("@DecimalMax(" + max + "): " + propertyName +  " added to class " + className);
             
-            annotate.param("value", max.toString())
-                    .param("inclusive", (!exclusive));
+            annotate.param("value", max.toString());
         }
     }
 

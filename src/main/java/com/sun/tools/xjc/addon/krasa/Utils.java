@@ -80,13 +80,15 @@ class Utils {
     }
 
     public static boolean isNumber(JFieldVar field) {
+        final String fieldTypeName = field.type().name();
         for (String type : NUMBERS) {
-            if (type.equalsIgnoreCase(field.type().name())) {
+            if (type.equalsIgnoreCase(fieldTypeName)) {
                 return true;
             }
         }
         try {
-            if (isNumber(Class.forName(field.type().fullName()))) {
+            final String fieldTypeFullName = field.type().fullName();
+            if (isNumber(Class.forName(fieldTypeFullName))) {
                 return true;
             }
         } catch (Exception e) {

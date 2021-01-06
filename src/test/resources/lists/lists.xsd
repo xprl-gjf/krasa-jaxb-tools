@@ -1,0 +1,24 @@
+<xsd:schema
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    targetNamespace="a"
+    xmlns:a="a"
+    elementFormDefault="qualified">
+
+    <xsd:element name="container">
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element name="listOfString" type="a:LongStringNotNull" 
+                             minOccurs="0" maxOccurs="5"/>   
+            </xsd:sequence>
+        </xsd:complexType>
+    </xsd:element>
+    
+    <xsd:simpleType name="LongStringNotNull">
+        <xsd:restriction base="xsd:normalizedString">
+            <xsd:minLength value="1"/>
+            <xsd:maxLength value="500"/>
+        </xsd:restriction>
+    </xsd:simpleType>
+
+</xsd:schema>
+

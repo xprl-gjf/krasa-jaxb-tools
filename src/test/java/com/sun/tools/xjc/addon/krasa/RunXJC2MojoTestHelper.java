@@ -73,8 +73,7 @@ public abstract class RunXJC2MojoTestHelper extends RunXJC2Mojo {
         final List<String> args = new ArrayList<>(super.getArgs());
         args.add("-XJsr303Annotations");
         args.add("-XJsr303Annotations:targetNamespace=" + getNamespace());
-        // args.add("-XJsr303Annotations:targetNamespace=a");
-        // args.add("-XJsr303Annotations:JSR_349=true");
+        args.add("-XJsr303Annotations:JSR_349=true");
         return args;
     }
 
