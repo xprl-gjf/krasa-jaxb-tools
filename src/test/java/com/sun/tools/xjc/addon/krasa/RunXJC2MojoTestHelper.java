@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import org.apache.maven.project.MavenProject;
 import org.jvnet.jaxb2.maven2.AbstractXJC2Mojo;
 import org.jvnet.jaxb2.maven2.test.RunXJC2Mojo;
@@ -260,7 +261,8 @@ public abstract class RunXJC2MojoTestHelper extends RunXJC2Mojo {
         }
 
         public AnnotationTester assertParam(String name, Object value) {
-            String v = valueMap.get(name).toString();
+            Objects.requireNonNull(value, "parameter " + name + " value cannot be null");
+            String v = valueMap.get(name);
             if (v == null) {
                 throw new AssertionError("annotation " + annotation +
                         " of attribute " + parent.attributeName +

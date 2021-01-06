@@ -1,12 +1,14 @@
+Note to 2.0+ versions:
+----------------
 
-This is a modified version of the krasa-jaxb-toos. It has been heavily refactored and optimized
-without touching functionality and usage.
-Some new bugs might have been introduced but the code should be more pleasant to navigate and debug.
+This is a heavily refactorization of the [krasa-jaxb-toos](https://github.com/krasa/krasa-jaxb-tools). 
+The API and functionalities should have remained almost intact. I am actively using this very useful plugin so I will keep this repository updated but I don't think I will be able to maintain the features I don't actively use in my project. 
 
+The following text is from the original work of Krasa.
+
+-----
 
 [![Maven Central](https://img.shields.io/maven-central/v/com.github.krasa/krasa-jaxb-tools.svg)](https://maven-badges.herokuapp.com/maven-central/com.github.krasa/krasa-jaxb-tools/)
-
-
 
 Contains:
 ----------------

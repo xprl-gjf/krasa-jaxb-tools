@@ -21,6 +21,7 @@ import com.sun.xml.xsom.impl.ParticleImpl;
 import com.sun.xml.xsom.impl.SimpleTypeImpl;
 import com.sun.xml.xsom.impl.parser.DelayedRef;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.List;
 import javax.persistence.Column;
@@ -30,11 +31,14 @@ import org.xml.sax.ErrorHandler;
 
 /**
  * 
- * @see https://github.com/krasa/krasa-jaxb-tools
+ * NOTE: fractionDigits fixed attribute cannot be translated into a meaningful Validation.
+
  * 
- * @author cocorossello
+ * @see https://github.com/fillumina/krasa-jaxb-tools
+ * 
+ * @author Francesco Illuminati
  * @author Vojtěch Krása
- * @author Francesco Illuminati <fillumina@gmail.com>
+ * @author cocorossello
  */
 public class JaxbValidationPlugin extends Plugin {
 
@@ -417,7 +421,7 @@ public class JaxbValidationPlugin extends Plugin {
     private void addDecimalMinAnnotation(JFieldVar field, XSFacet minFacet,
             String propertyName, String className, boolean exclusive) {
 
-        Integer min = parseIntegerXsFacet(minFacet);
+        BigDecimal min = parseIntegerXsFacet(minFacet);
         if (min == null) {
             return;
         }
@@ -428,12 +432,12 @@ public class JaxbValidationPlugin extends Plugin {
             log("@DecimalMin(value = " + min + ", inclusive = " + (!exclusive) + "): " +
                     propertyName + " added to class " + className);
 
-            annotate.param("value", min)
+            annotate.param("value", min.toString())
                     .param("inclusive", !exclusive);
 
         } else {
             if (exclusive) {
-                min++;
+                min = min.add(BigDecimal.ONE);
             }
 
             log("@DecimalMin(" + min + "): " + propertyName + " added to class " + className);
@@ -446,7 +450,7 @@ public class JaxbValidationPlugin extends Plugin {
     private void addDecimalMaxAnnotation(JFieldVar field, XSFacet maxFacet, 
             String propertyName, String className, boolean exclusive) {
         
-        Integer max = parseIntegerXsFacet(maxFacet);
+        BigDecimal max = parseIntegerXsFacet(maxFacet);
         if (max == null) {
             return;
         }
@@ -457,12 +461,12 @@ public class JaxbValidationPlugin extends Plugin {
             log("@DecimalMax(value = " + max + ", inclusive = " + (!exclusive) + "): " + 
                     propertyName + " added to class " + className);
             
-            annotate.param("value", max)
+            annotate.param("value", max.toString())
                     .param("inclusive", (!exclusive));
 
         } else {
             if (exclusive) {
-                max--;
+                max = max.subtract(BigDecimal.ONE);
             }
             
             log("@DecimalMax(" + max + "): " + propertyName +  " added to class " + className);
@@ -648,14 +652,14 @@ public class JaxbValidationPlugin extends Plugin {
         processType(type, var, propertyName, className);
     }
 
-    private Integer parseIntegerXsFacet(XSFacet facet) {
+    private BigDecimal parseIntegerXsFacet(XSFacet facet) {
         final String str = facet.getValue().value;
         if (str == null || str.isBlank()) {
             return null;
         }
-
+        
         try {
-            return Integer.valueOf(str);
+            return new BigDecimal(str);
         } catch (NumberFormatException e) {
             return null;
         }

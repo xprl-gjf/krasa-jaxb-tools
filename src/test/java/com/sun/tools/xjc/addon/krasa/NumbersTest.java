@@ -46,7 +46,50 @@ public class NumbersTest extends RunXJC2MojoTestHelper {
                 
                 .attribute("positiveIntegerValue")
                         .assertClass(BigInteger.class)
-                        .annotation("DecimalMin").assertValue(1)
+                            .annotation("DecimalMin").assertValue(1)
+                            .annotation("NotNull").assertNoValues().end()
+                
+                .attribute("valueDimension")
+                        .assertClass(BigDecimal.class)
+                        .annotation("Digits")
+                            .assertParam("integer", 12)
+                            .assertParam("fraction", 2)
+                        .end()
+                        .annotation("NotNull").assertNoValues().end()
+                
+                .attribute("valuePositiveNonZeroDimensionIncl")
+                        .assertClass(BigDecimal.class)
+                        .annotation("Digits")
+                            .assertParam("integer", 12)
+                            .assertParam("fraction", 2)
+                        .end()
+                        .annotation("DecimalMin").assertValue("0.00")
+                        .annotation("NotNull").assertNoValues().end()
+                
+                .attribute("valuePositiveNonZeroDimensionExcl")
+                        .assertClass(BigDecimal.class)
+                        .annotation("Digits")
+                            .assertParam("integer", 12)
+                            .assertParam("fraction", 2)
+                        .end()
+                        .annotation("DecimalMin").assertValue("1.00")
+                        .annotation("NotNull").assertNoValues().end()
+                
+                .attribute("valueSixDigitDecimalFractionOne")
+                        .assertClass(BigDecimal.class)
+                        .annotation("Digits")
+                            .assertParam("integer", 6)
+                            .assertParam("fraction", 1)
+                        .end()
+                        .annotation("NotNull").assertNoValues().end()
+                
+                .attribute("valueFourDigitYear")
+                        .assertClass(BigInteger.class)
+                        .annotation("Digits")
+                            .assertParam("integer", 4)
+                            .assertParam("fraction", 0)
+                        .end()
+                        .annotation("DecimalMin").assertValue("1")
                         .annotation("NotNull").assertNoValues().end();
     }
 
