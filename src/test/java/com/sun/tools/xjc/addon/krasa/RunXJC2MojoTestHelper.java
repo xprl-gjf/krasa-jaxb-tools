@@ -20,7 +20,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -70,11 +69,12 @@ public abstract class RunXJC2MojoTestHelper extends RunXJC2Mojo {
 
     @Override
     public List<String> getArgs() {
-        final List<String> args = new ArrayList<>(super.getArgs());
-        args.add("-XJsr303Annotations");
-        args.add("-XJsr303Annotations:targetNamespace=" + getNamespace());
-        args.add("-XJsr303Annotations:JSR_349=true");
-        return args;
+        return List.of(
+                "-XJsr303Annotations",
+                "-XJsr303Annotations:targetNamespace=" + getNamespace(),
+                "-XJsr303Annotations:JSR_349=true",
+                "-XJsr303Annotations:generateStringListAnnotations=true"
+        );
     }
 
     public ArtifactTester element(String elementName) {

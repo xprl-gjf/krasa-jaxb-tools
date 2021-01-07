@@ -20,6 +20,7 @@ import com.sun.xml.xsom.impl.ElementDecl;
 import com.sun.xml.xsom.impl.ParticleImpl;
 import com.sun.xml.xsom.impl.SimpleTypeImpl;
 import com.sun.xml.xsom.impl.parser.DelayedRef;
+import cz.jirutka.validator.collection.constraints.EachSize;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.Collections;
@@ -55,6 +56,8 @@ public class JaxbValidationPlugin extends Plugin {
             PLUGIN_OPTION_NAME + ":jpa";
     static final String GENERATE_SERVICE_VALIDATION_ANNOTATIONS =
             PLUGIN_OPTION_NAME + ":generateServiceValidationAnnotations";
+    static final String GENERATE_STRING_LIST_ANNOTATIONS =
+            PLUGIN_OPTION_NAME + ":generateStringListAnnotations";
     private static final String NAMESPACE =
             "http://jaxb.dev.java.net/plugin/code-injector";
 
@@ -68,6 +71,7 @@ public class JaxbValidationPlugin extends Plugin {
     private String notNullCustomMessage = null;
     private boolean jpaAnnotations = false;
     private String serviceValidationAnnotations;
+    private boolean generateStringListAnnotations;
 
     @Override
     public String getOptionName() {
@@ -97,6 +101,9 @@ public class JaxbValidationPlugin extends Plugin {
 
         argParser.extractString(GENERATE_SERVICE_VALIDATION_ANNOTATIONS)
                 .ifPresent(v -> serviceValidationAnnotations = v);
+
+        argParser.extractBoolean(GENERATE_STRING_LIST_ANNOTATIONS)
+                .ifPresent(v -> generateStringListAnnotations = v);
 
         argParser.extractString(NOT_NULL_ANNOTATIONS_CUSTOM_MESSAGES)
                 .ifPresent(value -> {
@@ -226,12 +233,11 @@ public class JaxbValidationPlugin extends Plugin {
 
         addValidAnnotation(elementType, field, propertyName, className);
         
-//        final XSSimpleType simpleType = elementType.asSimpleType();
-//        String minLength = simpleType.getFacet("minLength").getValue().value;
-//        String maxLength = simpleType.getFacet("maxLength").getValue().value;
-//        if (minLength != null || maxLength != null) {
-//            //TODO where to put these values??
-//        }
+        // using https://github.com/jirutka/validator-collection to annotate List<String>
+        final XSSimpleType simpleType = elementType.asSimpleType();
+        if (generateStringListAnnotations && property.isCollection() && simpleType != null) {
+            addEachSizeAnnotation(simpleType, field);
+        }
         
         if (elementType instanceof XSSimpleType) {
             processType((XSSimpleType) elementType, field, propertyName, className);
@@ -313,6 +319,21 @@ public class JaxbValidationPlugin extends Plugin {
         }
     }
 
+    private void addEachSizeAnnotation(final XSSimpleType simpleType, JFieldVar field) throws
+            NumberFormatException {
+        String minLength = getStringFacet(simpleType, "minLength");
+        String maxLength = getStringFacet(simpleType, "maxLength");
+        if (minLength != null || maxLength != null) {
+            JAnnotationUse annotation = field.annotate(EachSize.class);
+            if (minLength != null) {
+                annotation.param("min", Integer.parseInt(minLength));
+            }
+            if (maxLength != null) {
+                annotation.param("max", Integer.parseInt(maxLength));
+            }
+        }
+    }
+
     private void addNotNullAnnotation(ClassOutline co, JFieldVar field) {
         final String className = co.implClass.name();
         
@@ -363,9 +384,9 @@ public class JaxbValidationPlugin extends Plugin {
     private void addSizeAnnotation(XSSimpleType simpleType, String propertyName, String className,
             JFieldVar field) {
 
-        Integer maxLength = getFacet(simpleType, "maxLength");
-        Integer minLength = getFacet(simpleType, "minLength");
-        Integer length = getFacet(simpleType, "length");
+        Integer maxLength = getIntegerFacet(simpleType, "maxLength");
+        Integer minLength = getIntegerFacet(simpleType, "minLength");
+        Integer length = getIntegerFacet(simpleType, "length");
 
         addSizeAnnotation(minLength, maxLength, length, propertyName, className, field);
     }
@@ -401,7 +422,7 @@ public class JaxbValidationPlugin extends Plugin {
 
     private void addJpaColumnAnnotation(XSSimpleType simpleType, String propertyName,
             String className, JFieldVar field) {
-        Integer maxLength = getFacet(simpleType, "maxLength");
+        Integer maxLength = getIntegerFacet(simpleType, "maxLength");
         if (maxLength != null) {
             log("@Column(null, " + maxLength + "): " + propertyName +
                     " added to class " + className);
@@ -412,8 +433,8 @@ public class JaxbValidationPlugin extends Plugin {
     private void addDigitAndJpaColumnAnnotation(XSSimpleType simpleType, JFieldVar field,
             String propertyName, String className) {
 
-        Integer totalDigits = getFacet(simpleType, "totalDigits");
-        Integer fractionDigits = getFacet(simpleType, "fractionDigits");
+        Integer totalDigits = getIntegerFacet(simpleType, "totalDigits");
+        Integer fractionDigits = getIntegerFacet(simpleType, "fractionDigits");
         if (totalDigits == null) {
             totalDigits = 0;
         }
@@ -600,7 +621,12 @@ public class JaxbValidationPlugin extends Plugin {
         patternAnnotation.param("regexp", sb.substring(0, sb.length() - 1));
     }
 
-    private Integer getFacet(XSSimpleType simpleType, String name) {
+    private static String getStringFacet(final XSSimpleType simpleType, String param) {
+        final XSFacet facet = simpleType.getFacet(param);
+        return facet == null ? null : facet.getValue().value;
+    }
+    
+    private Integer getIntegerFacet(XSSimpleType simpleType, String name) {
         final XSFacet facet = simpleType.getFacet(name);
         if (facet == null) {
             return null;

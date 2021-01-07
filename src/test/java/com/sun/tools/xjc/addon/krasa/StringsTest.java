@@ -15,7 +15,7 @@ public class StringsTest extends RunXJC2MojoTestHelper {
     public String getNamespace() {
         return "a";
     }
-    
+
     public void test() {
         element("Strings")
                 .attribute("address")
