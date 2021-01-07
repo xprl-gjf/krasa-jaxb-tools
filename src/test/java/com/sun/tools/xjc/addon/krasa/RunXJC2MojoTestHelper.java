@@ -108,6 +108,15 @@ public abstract class RunXJC2MojoTestHelper extends RunXJC2Mojo {
             this.lines = lines;
         }
 
+        public AttributeTester classAnnotations() {
+            final String clazzName = filename.replace(".java", "");
+            int line = getLineForClass(clazzName);
+            List<String> annotationList = getAnnotations(clazzName, line);
+            String definition = lines.get(line);
+            return new AttributeTester(this, filename, clazzName, 
+                    definition, annotationList);
+        }
+        
         public AttributeTester attribute(String attributeName) {
             int line = getLineForAttribute(attributeName);
             List<String> annotationList = getAnnotations(attributeName, line);
@@ -129,6 +138,17 @@ public abstract class RunXJC2MojoTestHelper extends RunXJC2Mojo {
 
         public RunXJC2MojoTestHelper end() {
             return RunXJC2MojoTestHelper.this;
+        }
+       
+        private int getLineForClass(String className) {
+            for (int i = 0, l = lines.size(); i < l; i++) {
+                String line = lines.get(i).trim();
+                if (line.startsWith("public class " + className)) {
+                    return i;
+                }
+            }
+            throw new AssertionError(
+                    "attribute " + className + " not found in file " + filename);
         }
 
         private int getLineForAttribute(String attributeName) {
