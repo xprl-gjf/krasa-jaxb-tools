@@ -346,11 +346,17 @@ public class JaxbValidationPlugin extends Plugin {
         String fractionDigits = getStringFacet(simpleType, "fractionDigits");
         if (totalDigits != null || fractionDigits != null) {
             JAnnotationUse annotation = field.annotate(EachDigits.class);
-            if (totalDigits != null) {
-                annotation.param("integer", Integer.parseInt(totalDigits));
-            }
-            if (fractionDigits != null) {
-                annotation.param("fraction", Integer.parseInt(fractionDigits));
+            if (totalDigits != null || fractionDigits != null) {
+                if (totalDigits != null) {
+                    annotation.param("integer", Integer.parseInt(totalDigits));
+                } else {
+                    annotation.param("integer", 0);
+                }
+                if (fractionDigits != null) {
+                    annotation.param("fraction", Integer.parseInt(fractionDigits));
+                } else {
+                    annotation.param("fraction", 0);
+                }
             }
         }
     }
