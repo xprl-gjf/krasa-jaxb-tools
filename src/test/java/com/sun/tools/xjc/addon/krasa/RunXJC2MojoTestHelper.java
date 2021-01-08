@@ -41,11 +41,11 @@ public abstract class RunXJC2MojoTestHelper extends RunXJC2Mojo {
     }
     
     // artifact creation happens before test executions!
-    public void setUp() throws Exception {
+    public final void setUp() throws Exception {
         super.testExecute();
     }
 
-    public void testExecute() throws Exception {
+    public final void testExecute() throws Exception {
         // override RunXJC2Mojo own method to allow tests to be executed after mojo creation
     }
     
