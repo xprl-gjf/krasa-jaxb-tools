@@ -35,7 +35,22 @@ public class ListsTest extends RunXJC2MojoTestHelper {
                             .assertParam("min", 3)
                             .assertParam("max", 7).end()
                         .annotation("NotNull").assertNoValues()
-                        .annotation("Valid").assertNoValues();
+                        .annotation("Valid").assertNoValues()
+                        .end()
+                .attribute("listOfPercentage")
+                        .annotation("Size")
+                            .assertParam("min", 2)
+                            .assertParam("max", 4).end()
+                        .annotation("EachDigits")
+                            .assertParam("integer", 3)
+                            .assertParam("fraction", 2).end()
+                        .annotation("EachDecimalMin")
+                            .assertParam("value", "0.00")
+                            .assertParam("inclusive", false).end()
+                        .annotation("EachDecimalMax")
+                            .assertParam("value", "100.00")
+                            .assertParam("inclusive", true).end()
+                        .annotation("NotNull").assertNoValues();
     }
     
     public void testAddressType() {

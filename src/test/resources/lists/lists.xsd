@@ -11,7 +11,10 @@
                              minOccurs="0" maxOccurs="5"/>   
                 
                 <xsd:element name="listOfAddress" type="a:AddressType" 
-                             minOccurs="3" maxOccurs="7"/>   
+                             minOccurs="3" maxOccurs="7"/>
+                
+                <xsd:element name="listOfPercentage" type="a:Percentage"
+                             minOccurs="2" maxOccurs="4"/>
             </xsd:sequence>
         </xsd:complexType>
     </xsd:element>
@@ -20,6 +23,15 @@
         <xsd:restriction base="xsd:normalizedString">
             <xsd:minLength value="1"/>
             <xsd:maxLength value="500"/>
+        </xsd:restriction>
+    </xsd:simpleType>
+    
+    <xsd:simpleType name="Percentage">
+        <xsd:restriction base="xsd:decimal">
+            <xsd:totalDigits value="3"/>
+            <xsd:fractionDigits value="2" fixed="true"/>
+            <xsd:minExclusive value="0.00"/>
+            <xsd:maxInclusive value="100.00"/>
         </xsd:restriction>
     </xsd:simpleType>
     

@@ -20,6 +20,9 @@ import com.sun.xml.xsom.impl.ElementDecl;
 import com.sun.xml.xsom.impl.ParticleImpl;
 import com.sun.xml.xsom.impl.SimpleTypeImpl;
 import com.sun.xml.xsom.impl.parser.DelayedRef;
+import cz.jirutka.validator.collection.constraints.EachDecimalMax;
+import cz.jirutka.validator.collection.constraints.EachDecimalMin;
+import cz.jirutka.validator.collection.constraints.EachDigits;
 import cz.jirutka.validator.collection.constraints.EachSize;
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -233,10 +236,13 @@ public class JaxbValidationPlugin extends Plugin {
 
         addValidAnnotation(elementType, field, propertyName, className);
         
-        // using https://github.com/jirutka/validator-collection to annotate List<String>
+        // using https://github.com/jirutka/validator-collection to annotate Lists of primitives
         final XSSimpleType simpleType = elementType.asSimpleType();
         if (generateStringListAnnotations && property.isCollection() && simpleType != null) {
             addEachSizeAnnotation(simpleType, field);
+            addEachDigitsAnnotation(simpleType, field);
+            addEachDecimalMinAnnotation(simpleType, field);
+            addEachDecimalMaxAnnotation(simpleType, field);
         }
         
         if (elementType instanceof XSSimpleType) {
@@ -330,6 +336,55 @@ public class JaxbValidationPlugin extends Plugin {
             }
             if (maxLength != null) {
                 annotation.param("max", Integer.parseInt(maxLength));
+            }
+        }
+    }
+
+    private void addEachDigitsAnnotation(final XSSimpleType simpleType, JFieldVar field) throws
+            NumberFormatException {
+        String totalDigits = getStringFacet(simpleType, "totalDigits");
+        String fractionDigits = getStringFacet(simpleType, "fractionDigits");
+        if (totalDigits != null || fractionDigits != null) {
+            JAnnotationUse annotation = field.annotate(EachDigits.class);
+            if (totalDigits != null) {
+                annotation.param("integer", Integer.parseInt(totalDigits));
+            }
+            if (fractionDigits != null) {
+                annotation.param("fraction", Integer.parseInt(fractionDigits));
+            }
+        }
+    }
+
+    private void addEachDecimalMaxAnnotation(final XSSimpleType simpleType, JFieldVar field) throws
+            NumberFormatException {
+        String maxInclusive = getStringFacet(simpleType, "maxInclusive");
+        String maxExclusive = getStringFacet(simpleType, "maxExclusive");
+        if (maxExclusive != null || maxInclusive != null) {
+            JAnnotationUse annotation = field.annotate(EachDecimalMax.class);
+            if (maxInclusive != null) {
+                annotation.param("value", maxInclusive)
+                        .param("inclusive", true);
+            }
+            if (maxExclusive != null) {
+                annotation.param("value", maxExclusive)
+                        .param("inclusive", false);
+            }
+        }
+    }
+
+    private void addEachDecimalMinAnnotation(final XSSimpleType simpleType, JFieldVar field) throws
+            NumberFormatException {
+        String minInclusive = getStringFacet(simpleType, "minInclusive");
+        String minExclusive = getStringFacet(simpleType, "minExclusive");
+        if (minExclusive != null || minInclusive != null) {
+            JAnnotationUse annotation = field.annotate(EachDecimalMin.class);
+            if (minInclusive != null) {
+                annotation.param("value", minInclusive)
+                        .param("inclusive", true);
+            }
+            if (minExclusive != null) {
+                annotation.param("value", minExclusive)
+                        .param("inclusive", false);
             }
         }
     }
