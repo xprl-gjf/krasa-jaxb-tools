@@ -77,6 +77,9 @@ public abstract class RunXJC2MojoTestHelper extends RunXJC2Mojo {
         );
     }
 
+    /** 
+     * @param elementName The name of the root element created (the java class name created by JAXB). 
+     */
     public ArtifactTester element(String elementName) {
         final String filename = elementName + ".java";
         List<String> lines;
@@ -253,14 +256,14 @@ public abstract class RunXJC2MojoTestHelper extends RunXJC2Mojo {
             parseAnnotationValues(line);
         }
 
-        private void parseAnnotationValues(String line1) {
+        private void parseAnnotationValues(String line) {
             String values = "";
-            if (line1.contains("(")) {
-                int start = line1.indexOf("(");
-                values = line1.substring(start + 1, line1.length() - 1);
+            if (line.contains("(")) {
+                int start = line.indexOf("(");
+                values = line.substring(start + 1, line.length() - 1);
             }
             if (!values.isBlank()) {
-                if (line1.contains("=")) {
+                if (line.contains("=")) {
                     String[] pairs = values.split(",");
                     for (String p : pairs) {
                         String[] kv = p.split("=");
