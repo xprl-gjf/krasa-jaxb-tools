@@ -10,98 +10,103 @@ import java.math.BigInteger;
 class Utils {
 
     public static final String[] NUMBERS = new String[] {
-        "BigDecimal", "BigInteger", "String", "byte", "short", "int", "long" 
+        "BigDecimal", "BigInteger", "String", "byte", "short", "int", "long"
     };
 
     public static int toInt(Object value) {
         if (value instanceof BigInteger) {
-            // xjc
+			// xjc
             return ((BigInteger) value).intValue();
         } else if (value instanceof Integer) {
-            // cxf-codegen
+			// cxf-codegen
             return (Integer) value;
-        } else {
+		} else {
             throw new IllegalArgumentException(
                     "unknown type " + value.getClass());
-        }
-    }
+		}
+	}
 
-    private static Field getSimpleField(String fieldName, Class<?> clazz) {
-        Class<?> tmpClass = clazz;
-        try {
-            do {
-                for (Field field : tmpClass.getDeclaredFields()) {
-                    String candidateName = field.getName();
-                    if (!candidateName.equals(fieldName)) {
-                        continue;
-                    }
-                    field.setAccessible(true);
-                    return field;
-                }
-                tmpClass = tmpClass.getSuperclass();
-            } while (tmpClass != null);
-        } catch (Exception e) {
-            System.err.println("krasa-jaxb-tools - Field '" + fieldName +
-                    "' not found on class " + clazz);
-        }
-        return null;
-    }
+	private static Field getSimpleField(String fieldName, Class<?> clazz) {
+		Class<?> tmpClass = clazz;
+		try {
+			do {
+				for (Field field : tmpClass.getDeclaredFields()) {
+					String candidateName = field.getName();
+					if (!candidateName.equals(fieldName)) {
+						continue;
+					}
+					field.setAccessible(true);
+					return field;
+				}
+				tmpClass = tmpClass.getSuperclass();
+			} while (tmpClass != null);
+		} catch (Exception e) {
+			System.err.println("krasa-jaxb-tools - Field '" + fieldName + "' not found on class " + clazz);
+		}
+		return null;
+	}
 
     // TODO this
     public static Object getField(String path, Object obj) {
-        try {
+		try {
             int idx = path.indexOf(".");
             if (idx != -1) {
                 String field = path.substring(0, idx);
                 Field declaredField = obj.getClass().getDeclaredField(field);
-                declaredField.setAccessible(true);
+				declaredField.setAccessible(true);
                 Object result = declaredField.get(obj);
-                
+
                 String nextField = path.substring(path.indexOf(".") + 1);
                 return getField(nextField, result);
-            } else {
+			} else {
                 Field simpleField = getSimpleField(path, obj.getClass());
-                simpleField.setAccessible(true);
+				simpleField.setAccessible(true);
                 return simpleField.get(obj);
-            }
-        } catch (Exception e) {
-            System.err.println("krasa-jaxb-tools - Field " + path +
-                    " not found on " + obj.getClass().getName());
-        }
-        return null;
-    }
+			}
+		} catch (Exception e) {
+			String className = null;
+			if(obj != null && obj.getClass() != null) {
+				className = obj.getClass().getName();
+			}
+			System.err.println("krasa-jaxb-tools - Field " + path + " not found on " + className );
+		}
+		return null;
+	}
 
-    public static boolean isMin(String value) {
+	public static boolean isMin(String value) {
         return "-9223372036854775808".equals(value) || "-2147483648".equals(value);
-    }
+	}
 
-    public static boolean isMax(String value) {
+	public static boolean isMax(String value) {
         return "9223372036854775807".equals(value) || "2147483647".equals(value);
-    }
+	}
 
-    public static boolean isNumber(JFieldVar field) {
+	public static boolean isNumber(JFieldVar field) {
         final String fieldTypeName = field.type().name();
-        for (String type : NUMBERS) {
+		for (String type : NUMBERS) {
             if (type.equalsIgnoreCase(fieldTypeName)) {
-                return true;
-            }
-        }
-        try {
+				return true;
+			}
+		}
+		try {
             final String fieldTypeFullName = field.type().fullName();
             if (isNumber(Class.forName(fieldTypeFullName))) {
                 return true;
             }
-        } catch (Exception e) {
-            // whatever
-        }
-        return false;
-    }
+		} catch (Exception e) {
+			// whatever
+		}
+		return false;
+	}
 
-    protected static boolean isNumber(Class<?> aClass) {
-        return Number.class.isAssignableFrom(aClass);
-    }
+	public static boolean isNumber(Class<?> aClass) {
+		return Number.class.isAssignableFrom(aClass);
+	}
 
-    static boolean isCustomType(JFieldVar var) {
+	public static boolean isCustomType(JFieldVar var) {
+		if(var == null) {
+			return false;
+		}
         return "JDirectClass".equals(var.type().getClass().getSimpleName());
     }
 }

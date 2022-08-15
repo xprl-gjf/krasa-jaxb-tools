@@ -1,4 +1,5 @@
-[![Maven Central](https://img.shields.io/maven-central/v/com.github.krasa/krasa-jaxb-tools.svg)](https://maven-badges.herokuapp.com/maven-central/com.github.krasa/krasa-jaxb-tools/)
+Note to 2.0+ versions:
+----------------
 
 This is a heavily refactorization of the [krasa-jaxb-toos](https://github.com/krasa/krasa-jaxb-tools). 
 The API and functionalities should have remained almost intact. I am actively using this very useful plugin so I will keep this repository updated but I don't think I will be able to maintain the features I don't actively use in my project. 
@@ -9,6 +10,12 @@ The following text is from the original work of Krasa.
 
 [![Maven Central](https://img.shields.io/maven-central/v/com.github.krasa/krasa-jaxb-tools.svg)](https://maven-badges.herokuapp.com/maven-central/com.github.krasa/krasa-jaxb-tools/)
 
+<<<<<<< HEAD
+=======
+>NOTE: I no longer use and maintain this plugin. Consider using this fork: https://github.com/fillumina/krasa-jaxb-tools
+
+
+>>>>>>> 6bbe4a7f0f3f2d5c99bbf14780733ee22d14f188
 Contains:
 ----------------
 * plugin for replacing primitives **-XReplacePrimitives** (e.g. int -> Integer)
