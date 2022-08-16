@@ -23,6 +23,7 @@ public class ListsTest extends RunXJC2MojoTestHelper {
     public void testContainer() {
         element("Container")
                 .attribute("listOfString")
+                        .annotation("Valid").assertNoValues()
                         .annotation("Size")
                             .assertParam("min", 0)
                             .assertParam("max", 5).end()
@@ -38,6 +39,7 @@ public class ListsTest extends RunXJC2MojoTestHelper {
                         .annotation("Valid").assertNoValues()
                         .end()
                 .attribute("listOfPercentage")
+                        .annotation("Valid").assertNoValues()
                         .annotation("Size")
                             .assertParam("min", 2)
                             .assertParam("max", 4).end()

@@ -38,7 +38,7 @@ import org.xml.sax.ErrorHandler;
  * NOTE: fractionDigits fixed attribute cannot be translated into a meaningful Validation.
 
  *
- * @see https://github.com/fillumina/krasa-jaxb-tools
+ * @see <a href="https://github.com/fillumina/krasa-jaxb-tools">krasa-jaxb-tools</a>
  *
  * @author Francesco Illuminati
  * @author Vojtěch Krása
@@ -177,11 +177,15 @@ public class JaxbValidationsPlugins extends Plugin {
             ClassOutline classOutline, Outline model) {
 
         XSComponent schemaComponent = property.getSchemaComponent();
-        ParticleImpl particle = (ParticleImpl) schemaComponent;
+        XSParticle particle = (XSParticle) schemaComponent;
+        XSTerm term = particle.getTerm();
 
         int minOccurs = particle.getMinOccurs().intValue();
         int maxOccurs = particle.getMaxOccurs().intValue();
-        boolean nillable = ((ElementDecl) particle.getTerm()).isNillable();
+        boolean nillable = false;
+        if (term.isElementDecl()) {
+            nillable = ((XSElementDecl) term).isNillable();
+        }
         boolean required = property.isRequired();
         String propertyName = propertyName(property);
 
@@ -192,6 +196,10 @@ public class JaxbValidationsPlugins extends Plugin {
                 !hasAnnotation(field, NotNull.class)) {
 
             addNotNullAnnotation(classOutline, field);
+        }
+
+        if (property.isCollection()) {
+            addValidAnnotation(propertyName, classOutline.implClass.name(), field);
         }
 
         // https://www.ibm.com/developerworks/webservices/library/ws-tip-null/index.html
@@ -208,7 +216,6 @@ public class JaxbValidationsPlugins extends Plugin {
                     propertyName, classOutline.implClass.name(), field);
         }
 
-        XSTerm term = particle.getTerm();
         if (term instanceof ElementDecl) {
             processElement(property, classOutline, field, (ElementDecl) term);
 
@@ -422,6 +429,11 @@ public class JaxbValidationsPlugins extends Plugin {
             annotation.param("message", message);
         }
 
+    }
+
+    private void addValidAnnotation(String propertyName, String className, JFieldVar field) {
+        log("@Valid: " + propertyName + " added to class " + className);
+        field.annotate(Valid.class);
     }
 
     private void addValidAnnotation(XSType elementType, JFieldVar field, String propertyName,
