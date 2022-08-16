@@ -16,32 +16,14 @@ Contains:
 
 Release:
 ----------------
-```xml
-<dependency>
-    <groupId>com.github.krasa</groupId>
-    <artifactId>krasa-jaxb-tools</artifactId>
-    <version>1.8</version>
-</dependency>
-```
-Very Old Snapshot:
-----------------
-```xml
-<dependency>
-    <groupId>com.github.krasa</groupId>
-    <artifactId>krasa-jaxb-tools</artifactId>
-    <version>1.7-SNAPSHOT</version>
-</dependency>
 
-<repository>
-    <id>snapshots-repo</id>
-    <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-    <releases>
-        <enabled>false</enabled>
-    </releases>
-    <snapshots>
-        <enabled>true</enabled>
-    </snapshots>
-</repository>
+
+```xml
+<dependency>
+    <groupId>com.fillumina</groupId>
+    <artifactId>krasa-jaxb-tools</artifactId>
+    <version>2.0</version>
+</dependency>
 ```
 
 ---- 

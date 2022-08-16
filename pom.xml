@@ -2,11 +2,12 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-  <parent>
-    <groupId>org.sonatype.oss</groupId>
-    <artifactId>oss-parent</artifactId>
-    <version>7</version>
-  </parent>
+  <!-- 
+    deploy with (-X is for verbose error reporting): 
+      mvn -Possrh clean deploy -X
+    check results on:
+      https://oss.sonatype.org/#nexus-search;quick~com.fillumina
+  -->
 
   <groupId>com.fillumina</groupId>
   <artifactId>krasa-jaxb-tools</artifactId>
@@ -141,7 +142,6 @@
   </dependencies>
 
   <profiles>
-    <!-- deploy with: mvn -Possrh clean package install deploy -->
     <profile>
       <id>ossrh</id>
       <activation>
@@ -161,7 +161,7 @@
                 <phase>verify</phase>
                 <id>attach-sources</id>
                 <goals>
-                  <goal>jar</goal>
+                  <goal>jar-no-fork</goal>
                 </goals>
               </execution>
             </executions>
@@ -178,6 +178,11 @@
                 </goals>
               </execution>
             </executions>
+            <configuration>
+              <javadocExecutable>
+                ${java.home}/bin/javadoc
+              </javadocExecutable>
+            </configuration>            
           </plugin>
           <plugin>
             <!-- https://central.sonatype.org/publish/publish-maven/#gpg-signed-components -->
@@ -191,21 +196,13 @@
                 <goals>
                   <goal>sign</goal>
                 </goals>
+                <configuration>
+                  <keyname>${gpg.keyname}</keyname>
+                  <passphraseServerId>${gpg.passphrase}</passphraseServerId>
+                </configuration>                
               </execution>
             </executions>
           </plugin>
-          <plugin>
-            <!-- https://central.sonatype.org/publish/publish-maven/#nexus-staging-maven-plugin-for-deployment-and-release -->
-            <groupId>org.sonatype.plugins</groupId>
-            <artifactId>nexus-staging-maven-plugin</artifactId>
-            <version>1.6.13</version>
-            <extensions>true</extensions>
-            <configuration>
-              <serverId>ossrh</serverId>
-              <nexusUrl>https://s01.oss.sonatype.org/</nexusUrl>
-              <autoReleaseAfterClose>true</autoReleaseAfterClose>
-            </configuration>
-          </plugin>   
         </plugins>
       </build>
     </profile>
@@ -214,11 +211,15 @@
   <distributionManagement>
     <snapshotRepository>
       <id>ossrh</id>
-      <url>https://s01.oss.sonatype.org/content/repositories/snapshots</url>
+      <!-- I'm on an old legacy repository... -->
+      <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+      <!--<url>https://s01.oss.sonatype.org/content/repositories/snapshots</url>-->
     </snapshotRepository>
     <repository>
       <id>ossrh</id>
-      <url>https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+      <!-- I'm on an old legacy repository... -->
+      <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+      <!--<url>https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/</url>-->
     </repository>
   </distributionManagement>
   
