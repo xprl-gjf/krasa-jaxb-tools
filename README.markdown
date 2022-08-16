@@ -1,18 +1,14 @@
 ![Maven Central](https://img.shields.io/maven-central/v/com.fillumina/krasa-jaxb-tools.svg)
 
+Plugin for generation of Bean Validation Annotations (JSR-303) **-XJsr303Annotations**
+
+
 Versions
 ----------------
  - `2.0` A refactorized version of the original [krasa-jaxb-toos](https://github.com/krasa/krasa-jaxb-tools) last synced on August 2022, with some enhancements (support for `EachDigits`, `EachDecimalMin` and `EachDecimalMax` in primitive lists), improved tests and bug fixed. It is compiled using JDK 11. The `pom.xml` `groupId` has been changed to `com.fillumina`.
  
 
 -----
-
-Contains:
-----------------
-* plugin for replacing primitives **-XReplacePrimitives** (e.g. int -> Integer)
-* plugin for generation of Bean Validation Annotations (JSR-303) **-XJsr303Annotations**
-
----- 
 
 Release:
 ----------------
