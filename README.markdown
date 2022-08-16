@@ -1,49 +1,25 @@
-[![Maven Central](https://img.shields.io/maven-central/v/com.github.krasa/krasa-jaxb-tools.svg)](https://maven-badges.herokuapp.com/maven-central/com.github.krasa/krasa-jaxb-tools/)
+![Maven Central](https://img.shields.io/maven-central/v/com.fillumina/krasa-jaxb-tools.svg)
 
-This is a heavily refactorization of the [krasa-jaxb-toos](https://github.com/krasa/krasa-jaxb-tools). 
-The API and functionalities should have remained almost intact. I am actively using this very useful plugin so I will keep this repository updated but I don't think I will be able to maintain the features I don't actively use in my project. 
+Plugin for generation of Bean Validation Annotations (JSR-303) **-XJsr303Annotations**
 
-The following text is from the original work of Krasa.
+
+Versions
+----------------
+ - `2.0` A refactorized version of the original [krasa-jaxb-toos](https://github.com/krasa/krasa-jaxb-tools) last synced on August 2022, with some enhancements (support for `EachDigits`, `EachDecimalMin` and `EachDecimalMax` in primitive lists), improved tests and bug fixed. It is compiled using JDK 11. The `pom.xml` `groupId` has been changed to `com.fillumina`.
+ 
 
 -----
 
-[![Maven Central](https://img.shields.io/maven-central/v/com.github.krasa/krasa-jaxb-tools.svg)](https://maven-badges.herokuapp.com/maven-central/com.github.krasa/krasa-jaxb-tools/)
-
-Contains:
-----------------
-* plugin for replacing primitives **-XReplacePrimitives** (e.g. int -> Integer)
-* plugin for generation of Bean Validation Annotations (JSR-303) **-XJsr303Annotations**
-
----- 
-
 Release:
 ----------------
-```xml
-<dependency>
-    <groupId>com.github.krasa</groupId>
-    <artifactId>krasa-jaxb-tools</artifactId>
-    <version>1.8</version>
-</dependency>
-```
-Very Old Snapshot:
-----------------
-```xml
-<dependency>
-    <groupId>com.github.krasa</groupId>
-    <artifactId>krasa-jaxb-tools</artifactId>
-    <version>1.7-SNAPSHOT</version>
-</dependency>
 
-<repository>
-    <id>snapshots-repo</id>
-    <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-    <releases>
-        <enabled>false</enabled>
-    </releases>
-    <snapshots>
-        <enabled>true</enabled>
-    </snapshots>
-</repository>
+
+```xml
+<dependency>
+    <groupId>com.fillumina</groupId>
+    <artifactId>krasa-jaxb-tools</artifactId>
+    <version>2.0</version>
+</dependency>
 ```
 
 ---- 
@@ -79,12 +55,6 @@ Bean validation policy can be customized with **-XJsr303Annotations:generateServ
 * `Out` (validate only responses)
 
 **Using this option requires to specify krasa as front end generator** (See example below)
-
----- 
-XReplacePrimitives
-----------------
-* replaces primitive types by Objects
-* WARNING: must be defined before XhashCode or Xequals
 
 ---- 
 Example project with tests:
