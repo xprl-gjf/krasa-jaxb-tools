@@ -57,12 +57,6 @@ Bean validation policy can be customized with **-XJsr303Annotations:generateServ
 **Using this option requires to specify krasa as front end generator** (See example below)
 
 ---- 
-XReplacePrimitives
-----------------
-* replaces primitive types by Objects
-* WARNING: must be defined before XhashCode or Xequals
-
----- 
 Example project with tests:
 ----------------
 https://github.com/krasa/krasa-jaxb-tools-example
