@@ -1,13 +1,11 @@
-[![Maven Central](https://img.shields.io/maven-central/v/com.github.krasa/krasa-jaxb-tools.svg)](https://maven-badges.herokuapp.com/maven-central/com.github.krasa/krasa-jaxb-tools/)
+![Maven Central](https://img.shields.io/maven-central/v/com.fillumina/krasa-jaxb-tools.svg)
 
-This is a heavily refactorization of the [krasa-jaxb-toos](https://github.com/krasa/krasa-jaxb-tools). 
-The API and functionalities should have remained almost intact. I am actively using this very useful plugin so I will keep this repository updated but I don't think I will be able to maintain the features I don't actively use in my project. 
-
-The following text is from the original work of Krasa.
+Versions
+----------------
+ - `2.0` A refactorized version of the original [krasa-jaxb-toos](https://github.com/krasa/krasa-jaxb-tools) last synced on August 2022, with some enhancements (support for `EachDigits`, `EachDecimalMin` and `EachDecimalMax` in primitive lists), improved tests and bug fixed. It is compiled using JDK 11. The `pom.xml` `groupId` has been changed to `com.fillumina`.
+ 
 
 -----
-
-[![Maven Central](https://img.shields.io/maven-central/v/com.github.krasa/krasa-jaxb-tools.svg)](https://maven-badges.herokuapp.com/maven-central/com.github.krasa/krasa-jaxb-tools/)
 
 Contains:
 ----------------

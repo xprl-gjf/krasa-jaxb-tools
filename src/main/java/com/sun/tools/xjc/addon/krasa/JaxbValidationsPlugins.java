@@ -36,9 +36,6 @@ import org.xml.sax.ErrorHandler;
 /**
  *
  * NOTE: fractionDigits fixed attribute cannot be translated into a meaningful Validation.
-
- *
- * @see https://github.com/fillumina/krasa-jaxb-tools
  *
  * @author Francesco Illuminati
  * @author Vojtěch Krása
@@ -66,8 +63,8 @@ public class JaxbValidationsPlugins extends Plugin {
     private boolean notNullPrefixClassName;
     private String notNullCustomMessage = null;
     private boolean jpaAnnotations = false;
-    private String serviceValidationAnnotations;
     private boolean generateStringListAnnotations;
+    private String serviceValidationAnnotations;
 
     @Override
     public String getOptionName() {
@@ -170,8 +167,6 @@ public class JaxbValidationsPlugins extends Plugin {
 
     /**
      * XS:Element
-     *
-     * @param property
      */
     public void processElement(CElementPropertyInfo property,
             ClassOutline classOutline, Outline model) {
