@@ -27,7 +27,7 @@ Release
 Options
 ----------------
  - `targetNamespace` (string, optional): adds @Valid annotation to all elements with given namespace
- - `generateNotNullAnnotations` (boolean, optional, default=`true`): 
+ - `generateNotNullAnnotations` (boolean, optional, default=`true`): adds a `@NotNull` annotation if an element has `minOccours` not 0, is `required` or is not `nillable`.
  - `notNullAnnotationsCustomMessages` (boolean or string, optional, default=`false`): values are `true`, `FieldName`, `ClassName`, or an *actual message*
  - `JSR_349` (boolean, optiona, defalut=`false`) generates [JSR349](https://beanvalidation.org/1.1/) compatible annotations for `@DecimalMax` and `@DecimalMin` inclusive parameter
  - `verbose` (boolean, optional, default=`false`) print verbose messages to output

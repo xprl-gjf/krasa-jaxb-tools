@@ -55,7 +55,7 @@ public class JaxbValidationsPlugins extends Plugin {
 
     private String targetNamespace = null;
     private boolean jsr349 = false;
-    private boolean verbose = true;
+    private boolean verbose = false;
     private boolean notNullAnnotations = true;
     private boolean notNullCustomMessages;
     private boolean notNullPrefixFieldName;
