@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -35,11 +36,11 @@ import org.jvnet.jaxb2.maven2.test.RunXJC2Mojo;
 public abstract class RunXJC2MojoTestHelper extends RunXJC2Mojo {
 
     public abstract String getFolderName();
-    
+
     public String getNamespace() {
         return "";
     }
-    
+
     // artifact creation happens before test executions!
     public final void setUp() throws Exception {
         super.testExecute();
@@ -48,7 +49,7 @@ public abstract class RunXJC2MojoTestHelper extends RunXJC2Mojo {
     public final void testExecute() throws Exception {
         // override RunXJC2Mojo own method to allow tests to be executed after mojo creation
     }
-    
+
     @Override
     public File getGeneratedDirectory() {
         return new File(getBaseDir(), "target/generated-sources/" + getFolderName());
@@ -69,7 +70,7 @@ public abstract class RunXJC2MojoTestHelper extends RunXJC2Mojo {
 
     @Override
     public List<String> getArgs() {
-        return List.of(
+        return Arrays.asList(
                 "-XJsr303Annotations",
                 "-XJsr303Annotations:targetNamespace=" + getNamespace(),
                 "-XJsr303Annotations:JSR_349=true",
@@ -77,8 +78,8 @@ public abstract class RunXJC2MojoTestHelper extends RunXJC2Mojo {
         );
     }
 
-    /** 
-     * @param elementName The name of the root element created (the java class name created by JAXB). 
+    /**
+     * @param elementName The name of the root element created (the java class name created by JAXB).
      */
     public ArtifactTester element(String elementName) {
         final String filename = elementName + ".java";
@@ -93,7 +94,7 @@ public abstract class RunXJC2MojoTestHelper extends RunXJC2Mojo {
 
     private List<String> readFile(String filename) throws IOException {
         String ns = getNamespace();
-        ns = ns.isBlank() ? "generated" : ns;
+        ns = ns.trim().isEmpty() ? "generated" : ns;
         String fullPath = getGeneratedDirectory().getAbsolutePath() + File.separator +
                 ns + File.separator + filename;
         Path path = Paths.get(fullPath);
@@ -116,15 +117,15 @@ public abstract class RunXJC2MojoTestHelper extends RunXJC2Mojo {
             int line = getLineForClass(clazzName);
             List<String> annotationList = getAnnotations(clazzName, line);
             String definition = lines.get(line);
-            return new AttributeTester(this, filename, clazzName, 
+            return new AttributeTester(this, filename, clazzName,
                     definition, annotationList);
         }
-        
+
         public AttributeTester attribute(String attributeName) {
             int line = getLineForAttribute(attributeName);
             List<String> annotationList = getAnnotations(attributeName, line);
             String definition = lines.get(line);
-            return new AttributeTester(this, filename, attributeName, 
+            return new AttributeTester(this, filename, attributeName,
                     definition, annotationList);
         }
 
@@ -142,7 +143,7 @@ public abstract class RunXJC2MojoTestHelper extends RunXJC2Mojo {
         public RunXJC2MojoTestHelper end() {
             return RunXJC2MojoTestHelper.this;
         }
-       
+
         private int getLineForClass(String className) {
             for (int i = 0, l = lines.size(); i < l; i++) {
                 String line = lines.get(i).trim();
@@ -168,7 +169,7 @@ public abstract class RunXJC2MojoTestHelper extends RunXJC2Mojo {
         private int prevAttributeLine(String attributeName, int attributeLine) {
             for (int i = attributeLine - 1; i >= 0; i--) {
                 String line = lines.get(i).trim();
-                if (line.isBlank() ||
+                if (line.trim().isEmpty() ||
                         line.startsWith("public ") ||
                         line.startsWith("protected ")) {
                     return i + 1;
@@ -204,23 +205,23 @@ public abstract class RunXJC2MojoTestHelper extends RunXJC2Mojo {
             String className = clazz.getSimpleName();
             if (!definition.contains(className + " ")) {
                 throw new AssertionError("attribute " + attributeName +
-                            " in " + filename + " expected of class " + clazz.getName() + 
+                            " in " + filename + " expected of class " + clazz.getName() +
                         " but is: " + definition);
             }
             return this;
         }
-        
+
         public AttributeTester assertAnnotationNotPresent(String annotation) {
             long counter = annotationList.stream()
                     .filter(l -> l.trim().startsWith("@" + annotation))
                     .count();
             if (counter != 0) {
-                throw new AssertionError("annotation " + annotation + " of attribute " + 
+                throw new AssertionError("annotation " + annotation + " of attribute " +
                     attributeName + " in " + filename + " found");
             }
             return this;
         }
-        
+
         public AnnotationTester annotation(String annotation) {
             String line = annotationList.stream()
                     .filter(l -> l.trim().startsWith("@" + annotation))
@@ -252,7 +253,7 @@ public abstract class RunXJC2MojoTestHelper extends RunXJC2Mojo {
             this.parent = parent;
             this.line = line;
             this.annotation = annotationName;
-            
+
             parseAnnotationValues(line);
         }
 
@@ -262,7 +263,7 @@ public abstract class RunXJC2MojoTestHelper extends RunXJC2Mojo {
                 int start = line.indexOf("(");
                 values = line.substring(start + 1, line.length() - 1);
             }
-            if (!values.isBlank()) {
+            if (!values.trim().isEmpty()) {
                 if (line.contains("=")) {
                     String[] pairs = values.split(",");
                     for (String p : pairs) {
