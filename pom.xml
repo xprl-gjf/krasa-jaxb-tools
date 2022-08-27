@@ -9,7 +9,7 @@
       https://oss.sonatype.org/#nexus-search;quick~com.fillumina
   -->
 
-  <groupId>com.fillumina</groupId>
+  <groupId>ec.com.xprl</groupId>
   <artifactId>krasa-jaxb-tools</artifactId>
   <version>2.3-SNAPSHOT</version>
   <packaging>jar</packaging>
@@ -19,7 +19,7 @@
     JAXB plugin to generate Bean Validation Annotations (JSR-303) from XSDs
   </description>
 
-  <url>https://github.com/fillumina/krasa-jaxb-tools/</url>
+  <url>https://github.com/xprl-gjf/krasa-jaxb-tools/</url>
 
   <licenses>
     <license>
@@ -30,9 +30,9 @@
   </licenses>
 
   <scm>
-    <connection>scm:git:git@github.com:fillumina/krasa-jaxb-tools.git</connection>
-    <url>git@github.com:fillumina/krasa-jaxb-tools.git</url>
-    <developerConnection>scm:git:git@github.com:fillumina/krasa-jaxb-tools.git</developerConnection>
+    <connection>scm:git:git@github.com:xprl-gjf/krasa-jaxb-tools.git</connection>
+    <url>git@github.com:xprl-gjf/krasa-jaxb-tools.git</url>
+    <developerConnection>scm:git:git@github.com:xprl-gjf/krasa-jaxb-tools.git</developerConnection>
   </scm>
 
   <developers>
