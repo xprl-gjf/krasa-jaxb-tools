@@ -17,7 +17,6 @@ import com.sun.tools.xjc.outline.Outline;
 import com.sun.xml.xsom.*;
 import com.sun.xml.xsom.impl.AttributeUseImpl;
 import com.sun.xml.xsom.impl.ElementDecl;
-import com.sun.xml.xsom.impl.ParticleImpl;
 import com.sun.xml.xsom.impl.SimpleTypeImpl;
 import com.sun.xml.xsom.impl.parser.DelayedRef;
 import cz.jirutka.validator.collection.constraints.EachDecimalMax;
@@ -50,13 +49,12 @@ public class JaxbValidationsPlugins extends Plugin {
     private static final String NOT_NULL_ANNOTATIONS_CUSTOM_MESSAGES = PLUGIN_OPTION_NAME + ":notNullAnnotationsCustomMessages";
     private static final String VERBOSE = PLUGIN_OPTION_NAME + ":verbose";
     private static final String GENERATE_JPA_ANNOTATIONS = PLUGIN_OPTION_NAME + ":jpa";
-    private static final String GENERATE_SERVICE_VALIDATION_ANNOTATIONS = PLUGIN_OPTION_NAME + ":generateServiceValidationAnnotations";
     private static final String GENERATE_STRING_LIST_ANNOTATIONS = PLUGIN_OPTION_NAME + ":generateStringListAnnotations";
     private static final String NAMESPACE = "http://jaxb.dev.java.net/plugin/code-injector";
 
     private String targetNamespace = null;
     private boolean jsr349 = false;
-    private boolean verbose = true;
+    private boolean verbose = false;
     private boolean notNullAnnotations = true;
     private boolean notNullCustomMessages;
     private boolean notNullPrefixFieldName;
@@ -64,7 +62,6 @@ public class JaxbValidationsPlugins extends Plugin {
     private String notNullCustomMessage = null;
     private boolean jpaAnnotations = false;
     private boolean generateStringListAnnotations;
-    private String serviceValidationAnnotations;
 
     @Override
     public String getOptionName() {
@@ -91,9 +88,6 @@ public class JaxbValidationsPlugins extends Plugin {
 
         argParser.extractBoolean(GENERATE_JPA_ANNOTATIONS)
                 .ifPresent(v -> jpaAnnotations = v);
-
-        argParser.extractString(GENERATE_SERVICE_VALIDATION_ANNOTATIONS)
-                .ifPresent(v -> serviceValidationAnnotations = v);
 
         argParser.extractBoolean(GENERATE_STRING_LIST_ANNOTATIONS)
                 .ifPresent(v -> generateStringListAnnotations = v);
@@ -763,7 +757,7 @@ public class JaxbValidationsPlugins extends Plugin {
 
     private BigDecimal parseIntegerXsFacet(XSFacet facet) {
         final String str = facet.getValue().value;
-        if (str == null || str.isBlank()) {
+        if (str == null || str.trim().isEmpty()) {
             return null;
         }
 

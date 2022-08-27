@@ -4,3 +4,4 @@
 *.iml
 *.iws
 target
+/nb-configuration.xml
