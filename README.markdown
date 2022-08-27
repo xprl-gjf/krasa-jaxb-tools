@@ -4,7 +4,7 @@ Plugin for generation of Bean Validation Annotations (JSR-303) **-XJsr303Annotat
 
 Versions
 ----------------
- - `2.2-SNAPSHOT` Update from javax.xml and javax.validation to jakarta.
+ - `2.3-SNAPSHOT` Update from javax.xml and javax.validation to jakarta.
  
  - `2.1` Revert back to Java 1.8 (sorry folks!).
  
@@ -21,7 +21,7 @@ Maven:
 <dependency>
     <groupId>com.fillumina</groupId>
     <artifactId>krasa-jaxb-tools</artifactId>
-    <version>2.2-SNAPSHOT</version>
+    <version>2.3-SNAPSHOT</version>
 </dependency>
 ```
 
@@ -35,7 +35,7 @@ Gradle (kotlin):
 	// jaxXjc("com.sun.xml.bind:jaxb-impl:4.0.0") {
 	//     because("jaxb implementation needed for xjc".)
 	
-        jaxXjc("com.fillumina:krasa-jaxb-tools:2.2-SNAPSHOT") {
+        jaxXjc("com.fillumina:krasa-jaxb-tools:2.3-SNAPSHOT") {
 	    because("xjc plugin to apply jakarta.validation annotations.")
 	}
     }
