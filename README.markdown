@@ -1,10 +1,11 @@
-![Maven Central](https://img.shields.io/maven-central/v/com.fillumina/krasa-jaxb-tools.svg)
 
 Plugin for generation of Bean Validation Annotations (JSR-303) **-XJsr303Annotations**
 
 
 Versions
 ----------------
+ - `2.2-SNAPSHOT` Update from javax.xml and javax.validation to jakarta.
+ 
  - `2.1` Revert back to Java 1.8 (sorry folks!).
  
  - `2.0` A refactorized version of the original [krasa-jaxb-toos](https://github.com/krasa/krasa-jaxb-tools) last synced on August 2022, with some enhancements (support for `EachDigits`, `EachDecimalMin` and `EachDecimalMax` in primitive lists), improved tests and bug fixed. It is compiled using JDK 11. The `pom.xml` `groupId` has been changed to `com.fillumina`.
@@ -15,13 +16,29 @@ Versions
 Release
 ----------------
 
-
+Maven:
 ```xml
 <dependency>
     <groupId>com.fillumina</groupId>
     <artifactId>krasa-jaxb-tools</artifactId>
-    <version>2.1</version>
+    <version>2.2-SNAPSHOT</version>
 </dependency>
+```
+
+Gradle (kotlin):
+```kotlin
+    val jaxXjc: Configuration by configurations.creating
+
+    dependencies {
+        // include an xjc implementation, e.g.:
+	// jaxXjc("com.sun.xml.bind:jaxb-xjc:4.0.0")
+	// jaxXjc("com.sun.xml.bind:jaxb-impl:4.0.0") {
+	//     because("jaxb implementation needed for xjc".)
+	
+        jaxXjc("com.fillumina:krasa-jaxb-tools:2.2-SNAPSHOT") {
+	    because("xjc plugin to apply jakarta.validation annotations.")
+	}
+    }
 ```
 
 Options
