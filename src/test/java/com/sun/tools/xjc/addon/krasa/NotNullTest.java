@@ -18,9 +18,9 @@ public class NotNullTest extends RunXJC2MojoTestHelper {
     public void test() {
         element("NotNull")
                 .attribute("notNullString")
-                        .annotation("javax.validation.constraints.NotNull")
+                        .annotation("jakarta.validation.constraints.NotNull")
                             .assertParam("message", "NotNull.notNullString " +
-                                    "{javax.validation.constraints.NotNull.message}");
+                                    "{jakarta.validation.constraints.NotNull.message}");
     }
 
     @Override

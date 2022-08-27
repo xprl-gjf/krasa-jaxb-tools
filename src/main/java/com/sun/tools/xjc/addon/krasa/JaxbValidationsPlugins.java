@@ -28,8 +28,8 @@ import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.List;
 import javax.persistence.Column;
-import javax.validation.Valid;
-import javax.validation.constraints.*;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.*;
 import org.xml.sax.ErrorHandler;
 
 /**
