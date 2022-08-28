@@ -4,9 +4,9 @@
     xmlns:a="a"
     elementFormDefault="qualified">
 
-    <xsd:element name="notnull" type="a:NotNull"/>
+    <xsd:element name="notnull" type="a:NotNullType"/>
 
-    <xsd:complexType name="NotNull">
+    <xsd:complexType name="NotNullType">
         <xsd:sequence>
             <xsd:element name="notNullString" type="xsd:string"/>
         </xsd:sequence>

@@ -2,25 +2,21 @@ package com.sun.tools.xjc.addon.krasa;
 
 /**
  * Validation API 2.0 supports inclusive for @DecimalMin and @DecimalMax
- * 
+ *
  * @see https://github.com/krasa/krasa-jaxb-tools/issues/38
- * 
+ *
  * @author Francesco Illuminati <fillumina@gmail.com>
  */
-public class InvoiceTest extends RunXJC2MojoTestHelper {
+public class InvoiceBase extends AnnotationsMojoTestHelper {
 
-    @Override
-    public String getFolderName() {
-        return "invoice";
+    public InvoiceBase(ValidationAnnotation annotation) {
+        super("invoice", annotation);
     }
 
-    @Override
-    public String getNamespace() {
-        return "a";
-    }
-    
     public void test() {
         element("Invoice")
+                .annotationCanonicalName(getPkg() + ".validation.constraints.DecimalMin")
+                .annotationCanonicalName(getPkg() + ".validation.constraints.NotNull")
                 .attribute("amount")
                         .annotation("DecimalMin")
                             .assertParam("value", 0)

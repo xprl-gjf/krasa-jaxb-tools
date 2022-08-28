@@ -41,6 +41,10 @@ public abstract class RunXJC2MojoTestHelper extends RunXJC2Mojo {
         return "";
     }
 
+    public ValidationAnnotation getAnnotation() {
+        return ValidationAnnotation.JAVAX;
+    }
+
     // artifact creation happens before test executions!
     public final void setUp() throws Exception {
         super.testExecute();
@@ -71,10 +75,11 @@ public abstract class RunXJC2MojoTestHelper extends RunXJC2Mojo {
     @Override
     public List<String> getArgs() {
         return Arrays.asList(
-                "-XJsr303Annotations",
-                "-XJsr303Annotations:targetNamespace=" + getNamespace(),
-                "-XJsr303Annotations:JSR_349=true",
-                "-XJsr303Annotations:generateStringListAnnotations=true"
+                "-" + JaxbValidationsPlugins.PLUGIN_OPTION_NAME,
+                "-" + JaxbValidationsPlugins.TARGET_NAMESPACE_PARAMETER + "=" + getNamespace(),
+                "-" + JaxbValidationsPlugins.JSR_349 + "=true",
+                "-" + JaxbValidationsPlugins.GENERATE_STRING_LIST_ANNOTATIONS + "=true",
+                "-" + JaxbValidationsPlugins.VALIDATION_ANNOTATIONS + "=" + getAnnotation().name()
         );
     }
 
@@ -110,6 +115,14 @@ public abstract class RunXJC2MojoTestHelper extends RunXJC2Mojo {
         private ArtifactTester(String filename, List<String> lines) {
             this.filename = filename;
             this.lines = lines;
+        }
+
+        public ArtifactTester annotationCanonicalName(String canonicalName) {
+            lines.stream()
+                    .filter(s -> s.contains(canonicalName))
+                    .findAny()
+                    .orElseThrow(() -> new AssertionError("annotation not found: " + canonicalName));
+            return this;
         }
 
         public AttributeTester classAnnotations() {

@@ -1,6 +1,6 @@
 package com.sun.tools.xjc.addon.krasa;
 
-public class ABaseTest extends RunXJC2MojoTestHelper {
+public abstract class ABaseTest extends RunXJC2MojoTestHelper {
 
     @Override
     public String getFolderName() {
@@ -31,18 +31,18 @@ public class ABaseTest extends RunXJC2MojoTestHelper {
                                 .assertParam("min", 0)
                                 .assertParam("max", 3);
     }
-    
+
     public void testAnnotationNotPresent() {
         element("AddressType")
                 .attribute("isDefaultOneClick")
                         .assertNoAnnotationsPresent();
     }
-    
+
     public void testPattern() {
         element("EmailAddressType")
                 .attribute("preferredFormat")
                         .annotation("Pattern")
-                                .assertParam("regexp", 
+                                .assertParam("regexp",
                                         "(\\\\QTextOnly\\\\E)|(\\\\QHTML\\\\E)");
     }
 }

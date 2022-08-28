@@ -1,27 +1,24 @@
 package com.sun.tools.xjc.addon.krasa;
 
 /**
- * Unfortunately there isn't a way to add JSR349 validation to a generic in JAXB 
+ * Unfortunately there isn't a way to add JSR349 validation to a generic in JAXB
  * (as far as I know) so I had to use a project that allows to add annotations
  * intended for the content of a collection.
- * 
+ *
  * @see https://github.com/jirutka/validator-collection
  * @author Francesco Illuminati <fillumina@gmail.com>
  */
-public class ListsTest extends RunXJC2MojoTestHelper {
+public class ListsBase extends AnnotationsMojoTestHelper {
 
-    @Override
-    public String getFolderName() {
-        return "lists";
-    }
-
-    @Override
-    public String getNamespace() {
-        return "a";
+    public ListsBase(ValidationAnnotation annotation) {
+        super("lists", annotation);
     }
 
     public void testContainer() {
         element("Container")
+                .annotationCanonicalName(getPkg() + ".validation.Valid")
+                .annotationCanonicalName(getPkg() + ".validation.constraints.Size")
+                .annotationCanonicalName(getPkg() + ".validation.constraints.NotNull")
                 .attribute("listOfString")
                         .annotation("Valid").assertNoValues()
                         .annotation("Size")
@@ -54,7 +51,7 @@ public class ListsTest extends RunXJC2MojoTestHelper {
                             .assertParam("inclusive", true).end()
                         .annotation("NotNull").assertNoValues();
     }
-    
+
     public void testAddressType() {
         element("AddressType")
                 .attribute("name")

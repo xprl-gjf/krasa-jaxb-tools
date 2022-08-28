@@ -1,15 +1,9 @@
 package com.sun.tools.xjc.addon.krasa;
 
-public class ChoicesTest extends RunXJC2MojoTestHelper {
+public class ChoicesBase extends AnnotationsMojoTestHelper {
 
-    @Override
-    public String getFolderName() {
-        return "choices";
-    }
-
-    @Override
-    public String getNamespace() {
-        return "a";
+    public ChoicesBase(ValidationAnnotation annotation) {
+        super("choices", annotation);
     }
 
     public void test() {

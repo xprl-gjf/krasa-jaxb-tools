@@ -3,7 +3,7 @@ package com.sun.tools.xjc.addon.krasa;
 import java.util.ArrayList;
 import java.util.List;
 
-public class NotNullTest extends RunXJC2MojoTestHelper {
+public class ClassNameTest extends RunXJC2MojoTestHelper {
 
     @Override
     public String getFolderName() {
@@ -16,11 +16,10 @@ public class NotNullTest extends RunXJC2MojoTestHelper {
     }
 
     public void test() {
-        element("NotNull")
-                .attribute("notNullString")
-                        .annotation("javax.validation.constraints.NotNull")
-                            .assertParam("message", "NotNull.notNullString " +
-                                    "{javax.validation.constraints.NotNull.message}");
+        element("NotNullType")
+            .attribute("notNullString")
+                .annotation("NotNull")
+                    .assertParam("message", "NotNullType.notNullString {NotNull.message}");
     }
 
     @Override
@@ -28,7 +27,7 @@ public class NotNullTest extends RunXJC2MojoTestHelper {
         final List<String> args = new ArrayList<String>(super.getArgs());
         args.add("-XJsr303Annotations");
         args.add("-XJsr303Annotations:notNullAnnotationsCustomMessages=ClassName");
-        // args.add("-XJsr303Annotations:JSR_349=true");
+        args.add("-XJsr303Annotations:JSR_349=true");
         return args;
     }
 }

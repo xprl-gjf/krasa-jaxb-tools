@@ -3,6 +3,7 @@
     targetNamespace="a"
     xmlns:a="a"
     elementFormDefault="qualified">
+
     <xsd:element name="choices" type="a:Choices"/>
 
     <xsd:complexType name="Choices">

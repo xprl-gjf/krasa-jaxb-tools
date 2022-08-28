@@ -1,19 +1,14 @@
 package com.sun.tools.xjc.addon.krasa;
 
-public class NillableTest extends RunXJC2MojoTestHelper {
+public class NillableBase extends AnnotationsMojoTestHelper {
 
-    @Override
-    public String getFolderName() {
-        return "nillable";
-    }
-
-    @Override
-    public String getNamespace() {
-        return "a";
+    public NillableBase(ValidationAnnotation annotation) {
+        super("nillable", annotation);
     }
 
     public void test() {
         element("Nillable")
+                .annotationCanonicalName(getPkg() + ".validation.constraints.NotNull")
                 .attribute("notNullable")
                         .annotation("NotNull").assertNoValues()
                 .end()

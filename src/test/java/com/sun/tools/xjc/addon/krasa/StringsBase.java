@@ -4,20 +4,16 @@ package com.sun.tools.xjc.addon.krasa;
  *
  * @author Francesco Illuminati <fillumina@gmail.com>
  */
-public class StringsTest extends RunXJC2MojoTestHelper {
+public class StringsBase extends AnnotationsMojoTestHelper {
 
-    @Override
-    public String getFolderName() {
-        return "strings";
-    }
-
-    @Override
-    public String getNamespace() {
-        return "a";
+    public StringsBase(ValidationAnnotation annotation) {
+        super("strings", annotation);
     }
 
     public void test() {
         element("Strings")
+                .annotationCanonicalName(getPkg() + ".validation.constraints.Size")
+                .annotationCanonicalName(getPkg() + ".validation.constraints.NotNull")
                 .attribute("address")
                         .annotation("Size")
                                 .assertParam("min", "21")
