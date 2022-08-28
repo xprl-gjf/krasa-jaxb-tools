@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Francesco Illuminati <fillumina@gmail.com>.
+ * Copyright 2021 Francesco Illuminati .
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,7 +31,7 @@ import org.jvnet.jaxb2.maven2.test.RunXJC2Mojo;
 
 /**
  *
- * @author Francesco Illuminati <fillumina@gmail.com>
+ * @author Francesco Illuminati 
  */
 public abstract class RunXJC2MojoTestHelper extends RunXJC2Mojo {
 

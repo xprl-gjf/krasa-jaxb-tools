@@ -6,7 +6,7 @@ package com.sun.tools.xjc.addon.krasa;
  * intended for the content of a collection.
  *
  * @see https://github.com/jirutka/validator-collection
- * @author Francesco Illuminati <fillumina@gmail.com>
+ * @author Francesco Illuminati 
  */
 public class ListsBase extends AnnotationsMojoTestHelper {
 

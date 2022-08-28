@@ -2,7 +2,7 @@ package com.sun.tools.xjc.addon.krasa;
 
 /**
  *
- * @author Francesco Illuminati <fillumina@gmail.com>
+ * @author Francesco Illuminati 
  */
 public class AnnotationsMojoTestHelper extends RunXJC2MojoTestHelper {
 

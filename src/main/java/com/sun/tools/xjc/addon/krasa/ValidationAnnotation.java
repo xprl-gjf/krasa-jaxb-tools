@@ -4,7 +4,7 @@ import java.lang.annotation.Annotation;
 
 /**
  *
- * @author Francesco Illuminati <fillumina@gmail.com>
+ * @author Francesco Illuminati
  */
 public enum ValidationAnnotation {
 

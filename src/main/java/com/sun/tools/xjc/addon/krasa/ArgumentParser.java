@@ -5,7 +5,7 @@ import java.util.function.Function;
 
 /**
  *
- * @author Francesco Illuminati <fillumina@gmail.com>
+ * @author Francesco Illuminati
  */
 class ArgumentParser {
     private final String arg;
@@ -18,15 +18,15 @@ class ArgumentParser {
     public int getCounter() {
         return counter;
     }
-    
+
     public Optional<String> extractString(String paramName) {
         return extractArgument(paramName, v -> v);
     }
-    
+
     public Optional<Boolean> extractBoolean(String paramName) {
         return extractArgument(paramName, v -> Boolean.parseBoolean(v));
     }
-    
+
     private <T> Optional<T> extractArgument(String paramName,
             Function<String,T> convert) {
         int idx = arg.indexOf(paramName);
@@ -37,5 +37,5 @@ class ArgumentParser {
         }
         return Optional.empty();
     }
-    
+
 }

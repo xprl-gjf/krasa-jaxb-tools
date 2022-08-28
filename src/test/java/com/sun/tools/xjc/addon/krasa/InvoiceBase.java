@@ -5,7 +5,7 @@ package com.sun.tools.xjc.addon.krasa;
  *
  * @see https://github.com/krasa/krasa-jaxb-tools/issues/38
  *
- * @author Francesco Illuminati <fillumina@gmail.com>
+ * @author Francesco Illuminati 
  */
 public class InvoiceBase extends AnnotationsMojoTestHelper {
 

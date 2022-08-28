@@ -5,7 +5,7 @@ import java.math.BigInteger;
 
 /**
  *
- * @author Francesco Illuminati <fillumina@gmail.com>
+ * @author Francesco Illuminati 
  */
 public class NumbersBase extends AnnotationsMojoTestHelper {
 
