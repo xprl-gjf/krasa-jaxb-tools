@@ -6,7 +6,7 @@ Plugin for generation of Bean Validation Annotations (JSR-303) **-XJsr303Annotat
 Versions
 ----------------
  - `2.2` Some new features added because of PR requests
- 	- Adding `@Valid` annotation to force list item validation
+ 	- Adding `@Valid` annotation to force list items validation
  	- Added support for `Jakarta EE 9` with parameter `validationAnnotations`
 
  - `2.1` Revert back to Java 1.8 (sorry folks!).
@@ -119,6 +119,7 @@ Usage:
 <plugin>
     <groupId>org.jvnet.jaxb2.maven2</groupId>
     <artifactId>maven-jaxb2-plugin</artifactId>
+    <version>0.15.1</version>
     <executions>
         <execution>
             <goals>
