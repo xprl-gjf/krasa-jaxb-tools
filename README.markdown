@@ -84,14 +84,13 @@ Note that `maven-jaxb2-plugin` presently[ only supports JDK up to 9 officially](
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.fillumina.krasa.issue4</groupId>
-  <artifactId>krasa-issue4</artifactId>
+  <artifactId>krasa-sample-app</artifactId>
   <version>1.0-SNAPSHOT</version>
   <packaging>jar</packaging>
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.compiler.source>11</maven.compiler.source>
     <maven.compiler.target>11</maven.compiler.target>
-    <exec.mainClass>com.fillumina.krasa.issue4.KrasaIssue4</exec.mainClass>
   </properties>
 
   <dependencies>
