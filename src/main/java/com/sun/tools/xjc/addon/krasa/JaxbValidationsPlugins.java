@@ -24,6 +24,7 @@ import cz.jirutka.validator.collection.constraints.EachDecimalMin;
 import cz.jirutka.validator.collection.constraints.EachDigits;
 import cz.jirutka.validator.collection.constraints.EachSize;
 import java.io.IOException;
+import java.lang.annotation.Annotation;
 import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.List;
@@ -393,20 +394,22 @@ public class JaxbValidationsPlugins extends Plugin {
 
     private void addNotNullAnnotation(ClassOutline co, JFieldVar field) {
         final String className = co.implClass.name();
+        final Class<? extends Annotation> notNullClass = annotationFactory.getNotNullClass();
 
         String message = null;
         if (notNullPrefixClassName) {
             message = String.format("%s.%s {%s.message}",
                     className, field.name(),
-                    "NotNull");
+                    notNullClass.getName());
 
         } else if (notNullPrefixFieldName) {
             message = String.format("%s {%s.message}",
-                    field.name(), "NotNull");
+                    field.name(),
+                    notNullClass.getName());
 
         } else if (notNullCustomMessages) {
             message = String.format("{%s.message}",
-                    "NotNull");
+                    notNullClass.getName());
 
         } else if (notNullCustomMessage != null) {
             message = notNullCustomMessage
@@ -417,7 +420,7 @@ public class JaxbValidationsPlugins extends Plugin {
 
         log("@NotNull: " + field.name() + " added to class " + className);
 
-        final JAnnotationUse annotation = field.annotate(annotationFactory.getNotNullClass());
+        final JAnnotationUse annotation = field.annotate(notNullClass);
         if (message != null) {
             annotation.param("message", message);
         }

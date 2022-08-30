@@ -35,6 +35,16 @@ import org.jvnet.jaxb2.maven2.test.RunXJC2Mojo;
  */
 public abstract class RunXJC2MojoTestHelper extends RunXJC2Mojo {
 
+    private final ValidationAnnotation validationAnnotation;
+
+    public RunXJC2MojoTestHelper() {
+        this(ValidationAnnotation.JAVAX);
+    }
+
+    public RunXJC2MojoTestHelper(ValidationAnnotation validation) {
+        this.validationAnnotation = validation;
+    }
+
     public abstract String getFolderName();
 
     public String getNamespace() {
@@ -42,7 +52,7 @@ public abstract class RunXJC2MojoTestHelper extends RunXJC2Mojo {
     }
 
     public ValidationAnnotation getAnnotation() {
-        return ValidationAnnotation.JAVAX;
+        return this.validationAnnotation;
     }
 
     // artifact creation happens before test executions!

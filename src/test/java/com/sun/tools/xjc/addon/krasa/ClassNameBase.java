@@ -3,7 +3,15 @@ package com.sun.tools.xjc.addon.krasa;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ClassNameTest extends RunXJC2MojoTestHelper {
+public class ClassNameBase extends RunXJC2MojoTestHelper {
+
+    private final String expectedClassName;
+
+    public ClassNameBase(ValidationAnnotation validation, String expectedClassName)
+    {
+        super(validation);
+        this.expectedClassName = expectedClassName;
+    }
 
     @Override
     public String getFolderName() {
@@ -19,7 +27,7 @@ public class ClassNameTest extends RunXJC2MojoTestHelper {
         element("NotNullType")
             .attribute("notNullString")
                 .annotation("NotNull")
-                    .assertParam("message", "NotNullType.notNullString {NotNull.message}");
+                    .assertParam("message", "NotNullType.notNullString {" + this.expectedClassName + ".message}");
     }
 
     @Override
